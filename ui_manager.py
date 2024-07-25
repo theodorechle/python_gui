@@ -3,6 +3,7 @@ from ui_element import UIElement
 
 from json import load, JSONDecodeError
 from typing import Any
+import os
 
 ELEMENT_HOVERED = pygame.event.custom_type()
 ELEMENT_CLICKED = pygame.event.custom_type()
@@ -16,7 +17,7 @@ class UIManager:
         self._elements_to_display: list[UIElement] = []
         self._refresh_all = False
         self._focused_element: UIElement|None = None
-        self._theme = self.get_theme('default_theme.json')
+        self._theme = self.get_theme(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_theme.json'))
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file")
 
