@@ -16,7 +16,7 @@ class UIManager:
         self._elements_to_display: list[UIElement] = []
         self._refresh_all = False
         self._focused_element: UIElement|None = None
-        self._theme = self.get_theme('src/gui/default_theme.json')
+        self._theme = self.get_theme('default_theme.json')
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file")
 

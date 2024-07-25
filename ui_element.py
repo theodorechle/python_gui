@@ -1,11 +1,10 @@
 from ui_manager_interface import UIManagerInterface
-from ui_element_interface import UIElementInterface
 import pygame
 
 from typing import Any
 
 class UIElement:
-    def __init__(self, ui_manager: UIManagerInterface, start_x: int|None=None, start_y: int|None=None, width: int|None=None, height: int|None=None, horizontal_center: bool=False, vertical_center: bool=False, visible: bool=True, parent: UIElementInterface|None=None, theme_elements_name: list[str]=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, start_x: int|None=None, start_y: int|None=None, width: int|None=None, height: int|None=None, horizontal_center: bool=False, vertical_center: bool=False, visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
@@ -35,8 +34,8 @@ class UIElement:
         self._relative_height = height is None
         self._horizontal_center = horizontal_center
         self._vertical_center = vertical_center
-        self._visible = visible
         self.parent = parent
+        self._visible = visible
         self.hovered = False
         self.clicked = False
         self.unclicked = False
@@ -91,7 +90,7 @@ class UIElement:
     def is_in_element(self, x: int, y: int) -> bool:
         return self._start_coords[0] <= x <= self._start_coords[0] + self._size[0] and self._start_coords[1] <= y <= self._start_coords[1] + self._size[1]
 
-    def is_visible(self) -> bool:
+    def get_visibility(self) -> bool:
         return self._visible
     
     def set_visibility(self, visible: bool) -> None:
