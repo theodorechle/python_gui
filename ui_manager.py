@@ -12,7 +12,7 @@ ELEMENT_WHEEL_MOVED = pygame.event.custom_type()
 
 class UIManager:
     def __init__(self, window: pygame.Surface) -> None:
-        self.window = window
+        self.window: pygame.Surface = window
         self._elements: list[UIElement] = []
         self._elements_to_display: list[UIElement] = []
         self._refresh_all = False
@@ -61,11 +61,12 @@ class UIManager:
         """
         Ask the UIManager to re-display the window the next time it will be called for an update.
         If an element is given, it will only re-display the element.
+
         Note: If an element is given, it will display it without caring of a size change, 
         so it should be given only if the starting coords and the size are the same as at the last refresh.
         """
         if element is not None:
-            self._elements_to_display.append()
+            self._elements_to_display.append(element)
         else:
             self._refresh_all = True
 
@@ -86,11 +87,12 @@ class UIManager:
             if element.is_in_element(x, y):
                 return element
 
-    def set_focus(self, element: UIElement) -> None:
+    def set_focus(self, element: UIElement|None) -> None:
         if self._focused_element is not None:
             self._focused_element.focus = False
         self._focused_element = element
-        element.focus = True
+        if element is not None:
+            element.focus = True
     
     def get_focus(self) -> UIElement|None:
         return self._focused_element
@@ -125,6 +127,8 @@ class UIManager:
                     is_focused = True
                 pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
                 element = element.parent
+            if not is_focused:
+                self.set_focus(None)
         elif event.type == pygame.MOUSEWHEEL:
             element = self.get_hovered_element()
             while element is not None:
@@ -136,9 +140,8 @@ class UIManager:
 
 
     def update(self) -> None:
-        """
-        Refresh the window if needed and creates events (click, hover)
-        """
+        """Refresh the window if needed and creates events (click, hover)"""
+
         self.display()
         for element in self._elements:
             element.update()

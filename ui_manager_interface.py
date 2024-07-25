@@ -2,11 +2,21 @@ from ui_element_interface import UIElementInterface
 from pygame.event import Event
 from abc import abstractmethod, ABCMeta
 
+from typing import Any
+
 class UIManagerInterface(metaclass=ABCMeta):
     @abstractmethod
     def get_window_size(self) -> tuple[int, int]:
         pass
     
+    @abstractmethod
+    def update_theme(self, path: str=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
+        pass
+
+    @abstractmethod
+    def get_window_size(self) -> tuple[int, int]:
+        pass
+
     @abstractmethod
     def add_element(self, element: UIElementInterface) -> None:
         pass
@@ -21,8 +31,14 @@ class UIManagerInterface(metaclass=ABCMeta):
 
     @abstractmethod
     def ask_refresh(self, element: UIElementInterface|None=None) -> None:
-        pass
+        """
+        Ask the UIManager to re-display the window the next time it will be called for an update.
+        If an element is given, it will only re-display the element.
 
+        Note: If an element is given, it will display it without caring of a size change, 
+        so it should be given only if the starting coords and the size are the same as at the last refresh.
+        """
+    
     @abstractmethod
     def display(self) -> None:
         pass
@@ -32,12 +48,21 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def set_focus(self, element: UIElementInterface|None) -> None:
+        pass
+
+    @abstractmethod
+    def get_focus(self) -> UIElementInterface|None:
+        pass
+
+    @abstractmethod
     def process_event(self, event: Event) -> None:
-        pass         
+        """
+        Try to process the given events.
+        If the event is not MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP or MOUSEWHEEL,
+        if an element have the focus, the event will be sent to the focused element
+        """
 
     @abstractmethod
     def update(self) -> None:
-        """
-        Refresh the window if needed and creates events (click, hover)
-        """
-        pass
+        """Refresh the window if needed and creates events (click, hover)"""

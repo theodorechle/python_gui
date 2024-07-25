@@ -1,3 +1,4 @@
+from typing import Any
 from ui_element import UIElement
 from ui_manager import UIManager
 
@@ -18,8 +19,11 @@ class Label(UIElement):
 
         self.can_have_focus = False
     
-    def update_element(self) -> None:
+    def update_theme(self, theme_dict: dict[str, Any], erase=False) -> None:
+        super().update_theme(theme_dict, erase)
         self.update_font()
+
+    def update_element(self) -> None:
         self.update_fit_text()
         super().update_element()
 
@@ -64,3 +68,10 @@ class Label(UIElement):
         self.display_text()
         self.display_edge()
     
+    def set_text(self, text: str) -> None:
+        self._text = text
+        self.update_element()
+        self._ui_manager.ask_refresh()
+    
+    def get_text(self) -> str:
+        return self._text

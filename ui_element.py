@@ -49,9 +49,7 @@ class UIElement:
         self.update_start_coords()
 
     def update_theme(self, theme_dict: dict[str, Any], erase=False) -> None:
-        """
-        If erase is False, only the changed and added values will be set
-        """
+        """If erase is False, only the changed and added values will be set"""
         if erase:
             self._theme.clear()
         for element_name in self.theme_elements_name:
@@ -96,18 +94,21 @@ class UIElement:
     def set_visibility(self, visible: bool) -> None:
         self._visible = visible
         self._ui_manager.ask_refresh()
+    
+    def toggle_visibility(self) -> bool:
+        """Returns True if visible else False"""
+        self._visible = not self._visible
+        self._ui_manager.ask_refresh()
+        return self._visible
 
     def display_element(self) -> bool:
-        """
-        Check whether the element can be displayed before calling the display method
-        """
+        """Check whether the element can be displayed before calling the display method"""
+    
         if self._visible:
             self.display()
     
     def display(self) -> None:
-        """
-        Should not be called directly but using display_element method
-        """
+        """Should not be called directly but using display_element method"""
         raise NotImplementedError
     
     def update(self) -> None:
@@ -140,7 +141,7 @@ class UIElement:
             self.get_theme_value('border-bottom-right-radius')
         )
 
-    def process_event(self) -> None:
+    def process_event(self, event: pygame.event.Event) -> None:
         """
         If the element have the focus and the event can't be processed by the ui manager,
         the element will receive the events in order to process them.
