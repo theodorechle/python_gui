@@ -1,5 +1,5 @@
 import pygame
-from gui.ui_element import UIElement
+from ui_element import UIElement
 
 from json import load, JSONDecodeError
 from typing import Any

@@ -1,4 +1,4 @@
-from gui.ui_element_interface import UIElementInterface
+from ui_element_interface import UIElementInterface
 from pygame.event import Event
 from abc import abstractmethod, ABCMeta
 

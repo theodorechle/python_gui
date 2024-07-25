@@ -1,5 +1,5 @@
-from gui.ui_element import UIElement
-from gui.ui_manager import UIManager
+from ui_element import UIElement
+from ui_manager import UIManager
 
 from pygame import font
 from typing import Callable, Any

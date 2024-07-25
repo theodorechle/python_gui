@@ -1,5 +1,5 @@
-from gui.ui_manager_interface import UIManagerInterface
-from gui.ui_element_interface import UIElementInterface
+from ui_manager_interface import UIManagerInterface
+from ui_element_interface import UIElementInterface
 import pygame
 
 from typing import Any
