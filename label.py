@@ -61,8 +61,13 @@ class Label(UIElement):
         return self._font.size(self._fit_text)
 
     def display_text(self) -> None:
+        text_color = None
+        if self.hovered:
+            text_color = self.get_theme_value('hovered-text-color')
+        if text_color is None:
+            text_color = self.get_theme_value('text-color')
         self._ui_manager.window.blit(self._font
-            .render(self._fit_text, self.get_theme_value('antialias'), self.get_theme_value('text-color')), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
+            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
 
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()
@@ -78,3 +83,8 @@ class Label(UIElement):
     
     def get_text(self) -> str:
         return self._text
+
+    def update(self) -> None:
+        if self.hovered and self.get_theme_value('hovered-text-color') is not None:
+            self._ui_manager.ask_refresh()
+        return super().update()

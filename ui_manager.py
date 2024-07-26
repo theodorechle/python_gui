@@ -106,11 +106,7 @@ class UIManager:
         if an element have the focus, the event will be sent to the focused element
         """
         if event.type == pygame.MOUSEMOTION:
-            element = self.get_hovered_element()
-            while element is not None:
-                element.hovered = True
-                pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
-                element = element.parent
+            pass
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button in (4, 5): return # wheel
             element = self.get_hovered_element()
@@ -145,6 +141,11 @@ class UIManager:
     def update(self) -> None:
         """Refresh the window if needed and creates events (click, hover)"""
 
+        element = self.get_hovered_element()
+        while element is not None:
+            element.hovered = True
+            pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
+            element = element.parent
         self.display()
         for element in self._elements:
             element.update()

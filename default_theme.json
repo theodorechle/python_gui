@@ -15,6 +15,11 @@
         "text-color": "#ffffff"
     },
     "input-text-box": {
-        "caret-color": "#aaaaaa"
+        "caret-color": "#aaaaaa",
+        "placeholder-color": "#888888"
+    },
+    "button": {
+        "hovered-edges-color": "#888888",
+        "hovered-text-color": "#bbbbbb"
     }
 }

@@ -120,6 +120,8 @@ class UIElement:
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
+        if self.hovered and self.get_theme_value('hovered-edges-color') is not None:
+            self._ui_manager.ask_refresh()
         self.hovered = False
         self.clicked = False
         self.unclicked = False
@@ -128,9 +130,14 @@ class UIElement:
         return self._theme.get(variable)
 
     def display_edge(self) -> None:
+        edges_color = None
+        if self.hovered:
+            edges_color = self.get_theme_value('hovered-edges-color')
+        if edges_color is None:
+            edges_color = self.get_theme_value('edges-color')
         pygame.draw.rect(
             self._ui_manager.window,
-            self.get_theme_value('edges-color'),
+            edges_color,
             pygame.Rect(
                 self._start_coords[0],
                 self._start_coords[1],

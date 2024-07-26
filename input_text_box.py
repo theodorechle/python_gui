@@ -101,10 +101,7 @@ class InputTextBox(Label):
         if modified:
             self.update_element()
             self._ui_manager.ask_refresh()
-        
-    def get_text(self) -> str:
-        return self._text
-
+    
     def set_caret_to_pos(self) -> None:
         px = pygame.mouse.get_pos()[0]
         px -= self._start_coords[0] - self.edges_width
@@ -116,6 +113,18 @@ class InputTextBox(Label):
 
     def get_caret_pos(self) -> None:
         return self.edges_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
+
+    def display_text(self) -> None:
+        text_color = None
+        if self.hovered:
+            text_color = self.get_theme_value('hovered-text-color')
+        if text_color is None:
+            if self.is_placeholder_displayed:
+                text_color = self.get_theme_value('placeholder-color')
+            else:
+                text_color = self.get_theme_value('text-color')
+        self._ui_manager.window.blit(self._font
+            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
 
     def display_caret(self) -> None:
         x1, y1 = self.get_start_coords()
@@ -155,3 +164,8 @@ class InputTextBox(Label):
         if not self._relative_height:
             if self._font.size(self._fit_text)[1] + 2*self.edges_width > self._size[1]:
                 self._fit_text = ''
+    
+    def get_text(self) -> None:
+        if self.is_placeholder_displayed:
+            return ''
+        return self._text
