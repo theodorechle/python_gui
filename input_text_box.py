@@ -132,7 +132,7 @@ class InputTextBox(Label):
         """
         Set in 'self._fit_text' the text who can be entirely displayed with the actual size
         """
-        if not self.is_placeholder_displayed:
+        if not self.is_placeholder_displayed and not self._relative_width:
             while self.get_caret_pos() > self.get_size()[0] - self.edges_width:
                 self.text_displacement += 1
             while self._caret_x < self.text_displacement:
