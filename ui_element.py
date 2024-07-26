@@ -25,6 +25,7 @@ class UIElement:
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
         self._theme = {}
+        self.edges_width = 0
         self._ui_manager = ui_manager
         self._ui_manager.add_element(self)
         self._coords = start_x, start_y
@@ -55,15 +56,16 @@ class UIElement:
         for element_name in self.theme_elements_name:
             if element_name in theme_dict:
                 self._theme.update(theme_dict[element_name])
+        self.edges_width = self.get_theme_value('edges-width')
 
     def update_start_coords(self) -> None:
         x, y = self._coords
         screen_size = self._ui_manager.get_window_size()
         content_size = self.get_size()
         if self._horizontal_center:
-            x = screen_size[0] // 2 - content_size[0] // 2 - self.get_theme_value('edges-width')
+            x = screen_size[0] // 2 - content_size[0] // 2 - self.edges_width
         if self._vertical_center:
-            y = screen_size[1] // 2 - content_size[1] // 2 - self.get_theme_value('edges-width')
+            y = screen_size[1] // 2 - content_size[1] // 2 - self.edges_width
         self._start_coords = (x, y)
 
     def get_start_coords(self) -> tuple[int, int]:
@@ -73,11 +75,13 @@ class UIElement:
         width, height = self._size
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
+            content_width += 2*self.edges_width
+            content_height += 2*self.edges_width
         if self._relative_width:
             width = content_width
         if self._relative_height:
             height = content_height
-        self._size = (width + 2*self.get_theme_value('edges-width'), height + 2*self.get_theme_value('edges-width'))
+        self._size = (width, height)
 
     def get_content_size(self) -> tuple[int, int]:
         raise NotImplementedError
@@ -109,7 +113,7 @@ class UIElement:
     
     def display(self) -> None:
         """Should not be called directly but using display_element method"""
-        raise NotImplementedError
+        self.display_edge()
     
     def update(self) -> None:
         """
@@ -133,7 +137,7 @@ class UIElement:
                 self._size[0],
                 self._size[1]
             ),
-            self.get_theme_value('edges-width'),
+            self.edges_width,
             self.get_theme_value('border-radius'),
             self.get_theme_value('border-top-left-radius'),
             self.get_theme_value('border-top-right-radius'),

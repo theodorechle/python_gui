@@ -77,6 +77,8 @@ class UIManager:
         else:
             elements = self._elements_to_display
         for element in elements:
+            if not self._refresh_all:
+                self.window.fill("#000000", pygame.Rect(element.get_start_coords(), element.get_size()))
             element.display_element()
         self._refresh_all = False
         self._elements_to_display.clear()
@@ -123,8 +125,9 @@ class UIManager:
             while element is not None:
                 element.unclicked = True
                 if not is_focused and element.can_have_focus:
-                    self.set_focus(element)
                     is_focused = True
+                    if self.get_focus() != element:
+                        self.set_focus(element)
                 pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
                 element = element.parent
             if not is_focused:

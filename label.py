@@ -10,7 +10,7 @@ class Label(UIElement):
         A simple way to display text.
         """
         self._text = text
-        self._font: font.SysFont|None = None
+        self._font: font.Font|None = None
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('label')
@@ -40,7 +40,7 @@ class Label(UIElement):
         if self._relative_width:
             self._fit_text = self._text
         else:
-            element_width = self._size[0] - self.get_theme_value('edges-width') * 2
+            element_width = self._size[0] - self.edges_width * 2
             width = 0
             for i, char in enumerate(self._text, 1):
                 width += self._font.size(char)[0]
@@ -49,7 +49,7 @@ class Label(UIElement):
                     break
             self._fit_text = self._text[:i]
         if not self._relative_height:
-            if self._font.size(self._fit_text)[1] > self._size[1]:
+            if self._font.size(self._fit_text)[1] + 2*self.edges_width > self._size[1]:
                 self._fit_text = ''
 
     def get_text_size(self) -> tuple[int, int]:
@@ -59,7 +59,7 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         self._ui_manager.window.blit(self._font
-            .render(self._fit_text, True, "#ffffff"), (self._start_coords[0] + self.get_theme_value('edges-width'), self._start_coords[1] + self.get_theme_value('edges-width')))
+            .render(self._fit_text, True, "#ffffff"), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
 
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()
