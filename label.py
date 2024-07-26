@@ -5,7 +5,7 @@ from ui_manager import UIManager
 from pygame import font
 
 class Label(UIElement):
-    def __init__(self, ui_manager: UIManager, text: str="", start_x: int|None=None, start_y: int|None=None, width: int|None=None, height: int|None=None, horizontal_center: bool=False, vertical_center: bool=False, visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None) -> None:
+    def __init__(self, ui_manager: UIManager, text: str="", x: int=0, y: int=0, width: int|None=None, height: int|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None) -> None:
         """
         A simple way to display text.
         """
@@ -15,7 +15,7 @@ class Label(UIElement):
             theme_elements_name = []
         theme_elements_name.append('label')
         self._fit_text = self._text
-        super().__init__(ui_manager, start_x, start_y, width, height, horizontal_center, vertical_center, visible, parent, theme_elements_name)
+        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name)
 
         self.can_have_focus = False
     

@@ -5,7 +5,7 @@ from label import Label
 import pygame
 
 class InputTextBox(Label):
-    def __init__(self, ui_manager: UIManager, text: str="", placeholder_text: str="", forbidden_chars: list[str]|None=None, allowed_chars: list[str]|None=None, loose_focus_on_enter: bool=False, start_x: int|None=None, start_y: int|None=None, width: int|None=None, height: int|None=None, min_width: int=0, min_height: int=0, horizontal_center: bool=False, vertical_center: bool=False, visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None) -> None:
+    def __init__(self, ui_manager: UIManager, text: str="", placeholder_text: str="", forbidden_chars: list[str]|None=None, allowed_chars: list[str]|None=None, loose_focus_on_enter: bool=False, x: int=0, y: int=0, width: int|None=None, height: int|None=None, min_width: int=0, min_height: int=0, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None) -> None:
         """
         A text box made for input usage.
         """
@@ -25,7 +25,7 @@ class InputTextBox(Label):
         self._caret_x = len(text)
         self.is_placeholder_displayed = False
         self.text_displacement = 0
-        super().__init__(ui_manager, text, start_x, start_y, width, height, horizontal_center, vertical_center, visible, parent, theme_elements_name)
+        super().__init__(ui_manager, text, x, y, width, height, anchor, visible, parent, theme_elements_name)
         self.can_have_focus = True
         self.was_focused = False
     

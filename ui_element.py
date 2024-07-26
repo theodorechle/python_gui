@@ -4,23 +4,20 @@ import pygame
 from typing import Any
 
 class UIElement:
-    def __init__(self, ui_manager: UIManagerInterface, start_x: int|None=None, start_y: int|None=None, width: int|None=None, height: int|None=None, horizontal_center: bool=False, vertical_center: bool=False, visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, x: int=0, y: int=0, width: int|None=None, height: int|None=None, anchor: str='top-left', visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
-        - start_x: the x of the start of the element, or the center of the element if horizontally centered
-        - start_y: the y of the start of the element, or the center of the element if vertically centered
+        - x: the value who will be added to the x of the element, after the anchor will be set
+        - y: the value who will be added to the y of the element, after the anchor will be set
         - width: if not None, set the element width, else set relative size to True for width
         - height: if not None, set the element height, else set relative size to True for height
-        - horizontal_center: center the element horizontally in the window
-        - vertical_center: center the element vertically in the window
+        - anchor: a string telling where the element will be positioned in his parent.
+            Possible anchors: top-left, top, top-right, left, center, right, bottom-left, bottom, bottom-right
+            Default is top-left
         - visible: Whether the element should be displayed or not
         - theme_elements_name: a list of the themes' names of the subclasses
         """
-        if start_x is None and not horizontal_center:
-            raise ValueError("'start_x' must be set or 'horizontal_center' have to be set to True")
-        if start_y is None and not vertical_center:
-            raise ValueError("'start_y' must be set or 'vertical_center' have to be set to True")
         self.theme_elements_name = ['ui-element'] # a list of the class name and all is subclasses to get the themes
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
@@ -28,13 +25,12 @@ class UIElement:
         self.edges_width = 0
         self._ui_manager = ui_manager
         self._ui_manager.add_element(self)
-        self._coords = start_x, start_y
-        self._start_coords = self._coords
+        self._coords = x, y
+        self._start_coords = x, y
         self._size = (width, height)
         self._relative_width = width is None
         self._relative_height = height is None
-        self._horizontal_center = horizontal_center
-        self._vertical_center = vertical_center
+        self.anchor = anchor
         self.parent = parent
         self._visible = visible
         self.hovered = False
@@ -59,18 +55,48 @@ class UIElement:
                 self._theme.update(theme_dict[element_name])
         self.edges_width = self.get_theme_value('edges-width')
 
-    def update_start_coords(self) -> None:
-        x, y = self._coords
-        screen_size = self._ui_manager.get_window_size()
-        content_size = self.get_size()
-        if self._horizontal_center:
-            x = screen_size[0] // 2 - content_size[0] // 2 - self.edges_width
-        if self._vertical_center:
-            y = screen_size[1] // 2 - content_size[1] // 2 - self.edges_width
-        self._start_coords = (x, y)
-
-    def get_start_coords(self) -> tuple[int, int]:
+    def get_start_coords(self) -> None:
         return self._start_coords
+
+    def get_surface_rect(self) -> pygame.Rect:
+        return pygame.Rect(self._start_coords, self._size)
+
+    def update_start_coords(self) -> None:
+        x, y = 0, 0
+        if self.parent is None:
+            parent_rect = (0, 0, *self._ui_manager.get_window_size())
+        else:
+            parent_rect = self.parent.get_surface_rect()
+        if self.anchor == 'top-left':
+            x = parent_rect[0] + self.edges_width
+            y = parent_rect[1] + self.edges_width
+        elif self.anchor == 'top':
+            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + self.edges_width
+        elif self.anchor == 'top-right':
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
+            y = parent_rect[1] + self.edges_width
+        elif self.anchor == 'center':
+            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+        elif self.anchor == 'left':
+            x = parent_rect[0] + self.edges_width
+            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+        elif self.anchor == 'right':
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
+            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+        elif self.anchor == 'bottom-left':
+            x = parent_rect[0] + self.edges_width
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+        elif self.anchor == 'bottom':
+            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+        elif self.anchor == 'bottom-right':
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+        x += self._coords[0]
+        y += self._coords[1]
+        self._start_coords = x, y
     
     def update_size(self) -> None:
         width, height = self._size
