@@ -9,6 +9,8 @@ class InputTextBox(Label):
         """
         A text box made for input usage.
         """
+        if forbidden_chars is not None and allowed_chars is not None:
+            raise ValueError("Can't set both forbidden and allowed chars")
         self.forbidden_chars = forbidden_chars
         self.allowed_chars = allowed_chars
         if theme_elements_name is None:
@@ -65,11 +67,15 @@ class InputTextBox(Label):
     def process_event(self, event: pygame.event.Event) -> None:
         modified = False
         if event.type == pygame.TEXTINPUT:
+            text = ''
+            for char in event.text:
+                if (self.forbidden_chars is None or char not in self.forbidden_chars) and (self.allowed_chars is None or char in self.allowed_chars):
+                    text += char
             if self.is_placeholder_displayed:
                 self.is_placeholder_displayed = False
                 self._text = ""
-            self._text = self._text[:self._caret_x] + event.text + self._text[self._caret_x:]
-            self._caret_x += 1
+            self._text = self._text[:self._caret_x] + text + self._text[self._caret_x:]
+            self._caret_x += len(text)
             modified = True
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
