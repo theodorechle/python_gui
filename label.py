@@ -75,8 +75,8 @@ class Label(UIElement):
         return self.get_text_size()
 
     def display(self) -> None:
+        super().display()
         self.display_text()
-        self.display_edge()
     
     def set_text(self, text: str) -> None:
         self._text = text

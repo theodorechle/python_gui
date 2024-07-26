@@ -28,13 +28,20 @@ class UIManager:
         except (FileNotFoundError, JSONDecodeError):
             return {}
     
+    def _update_elements_themes(self, theme: dict[str,dict[str,Any]]) -> None:
+        for element_theme in theme:
+            if element_theme in self._theme:
+                self._theme[element_theme].update(theme[element_theme])
+            else:
+                self._theme[element_theme] = theme[element_theme]
+
     def update_theme(self, path: str=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
         if erase:
             self._theme.clear()
         if path is not None:
-            self._theme.update(self.get_theme(path))
+            self._update_elements_themes(self.get_theme(path))
         if theme_dict is not None:
-            self._theme.update(theme_dict)
+            self._update_elements_themes(theme_dict)
         for element in self._elements:
             element.update_theme(self._theme, erase)
 
@@ -56,19 +63,23 @@ class UIManager:
     def clear_elements_list(self) -> None:
         self._elements.clear()
         self._elements_to_display.clear()
+        self.ask_refresh()
 
-    def ask_refresh(self, element: UIElement|None=None) -> None:
+    def ask_refresh(self, element: UIElement|list[UIElement]|None=None) -> None:
         """
         Ask the UIManager to re-display the window the next time it will be called for an update.
         If an element is given, it will only re-display the element.
 
-        Note: If an element is given, it will display it without caring of a size change, 
+        Note: If an element or a list of element is given, it will display it without caring of a size change, 
         so it should be given only if the starting coords and the size are the same as at the last refresh.
         """
-        if element is not None:
+        if element is None:
+            self._refresh_all = True
+            return
+        if isinstance(element, UIElement):
             self._elements_to_display.append(element)
         else:
-            self._refresh_all = True
+            self._elements_to_display.extend(element)
 
     def display(self) -> None:
         if self._refresh_all:

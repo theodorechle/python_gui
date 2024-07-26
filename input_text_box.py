@@ -25,9 +25,12 @@ class InputTextBox(Label):
         self._caret_x = len(text)
         self.is_placeholder_displayed = False
         self.text_displacement = 0
+        self.show_caret = False
         super().__init__(ui_manager, text, x, y, width, height, anchor, visible, parent, theme_elements_name)
         self.can_have_focus = True
         self.was_focused = False
+        if self.parent is not None:
+            self.parent.update_element()
     
     def update(self) -> None:
         if self.was_focused and self.unclicked:
@@ -36,9 +39,12 @@ class InputTextBox(Label):
             self.was_focused = True
             pygame.key.start_text_input()
             pygame.key.set_text_input_rect(pygame.Rect(self.get_start_coords(), self.get_size()))
+            self.set_caret_to_pos()
         if not self.focus and self.was_focused:
             pygame.key.stop_text_input()
             self.was_focused = False
+            self.show_caret = False
+            self._ui_manager.ask_refresh(self)
         return super().update()
     
     def update_size(self) -> None:
@@ -100,9 +106,16 @@ class InputTextBox(Label):
                     modified = True
         if modified:
             self.update_element()
+            if self.parent is not None:
+                self.parent.update_element()
             self._ui_manager.ask_refresh()
     
     def set_caret_to_pos(self) -> None:
+        self.show_caret = True
+        if self.is_placeholder_displayed:
+            self._caret_x = 0
+            self._ui_manager.ask_refresh(self)
+            return
         px = pygame.mouse.get_pos()[0]
         px -= self._start_coords[0] - self.edges_width
         for i in range(len(self._fit_text)):
@@ -137,7 +150,8 @@ class InputTextBox(Label):
 
     def display(self) -> None:
         super().display()
-        self.display_caret()
+        if self.show_caret:
+            self.display_caret()
     
     def update_fit_text(self) -> None:
         """

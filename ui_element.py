@@ -134,12 +134,14 @@ class UIElement:
 
     def display_element(self) -> bool:
         """Check whether the element can be displayed before calling the display method"""
-    
         if self._visible:
             self.display()
     
     def display(self) -> None:
         """Should not be called directly but using display_element method"""
+        background_color = self.get_theme_value('background-color')
+        if background_color is not None:
+            pygame.draw.rect(self._ui_manager.window, background_color, pygame.Rect(self.get_start_coords(), self.get_size()))
         self.display_edge()
     
     def update(self) -> None:
