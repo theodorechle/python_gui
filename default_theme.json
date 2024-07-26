@@ -10,6 +10,11 @@
     },
     "label": {
         "font-name": "",
-        "font-size": 35
+        "font-size": 35,
+        "antialias": 1,
+        "text-color": "#ffffff"
+    },
+    "input-text-box": {
+        "caret-color": "#aaaaaa"
     }
 }

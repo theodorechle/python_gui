@@ -37,17 +37,20 @@ class Label(UIElement):
         """
         Set in 'self._fit_text' the text who can be entirely displayed with the actual size
         """
+        if not self._text:
+            self._fit_text = ''
+            return
         if self._relative_width:
             self._fit_text = self._text
         else:
-            element_width = self._size[0] - self.edges_width * 2
+            element_width = self._size[0]
             width = 0
-            for i, char in enumerate(self._text, 1):
-                width += self._font.size(char)[0]
+            self._fit_text = ''
+            for char in self._text:
+                width = self._font.size(self._fit_text + char)[0]
                 if width > element_width:
-                    i -= 1
                     break
-            self._fit_text = self._text[:i]
+                self._fit_text += char
         if not self._relative_height:
             if self._font.size(self._fit_text)[1] + 2*self.edges_width > self._size[1]:
                 self._fit_text = ''
@@ -59,7 +62,7 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         self._ui_manager.window.blit(self._font
-            .render(self._fit_text, True, "#ffffff"), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
+            .render(self._fit_text, self.get_theme_value('antialias'), self.get_theme_value('text-color')), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
 
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()

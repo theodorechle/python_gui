@@ -28,6 +28,8 @@ class InputTextBox(Label):
         self.was_focused = False
     
     def update(self) -> None:
+        if self.was_focused and self.unclicked:
+            self.set_caret_to_pos()
         if self.focus and not self.was_focused:
             self.was_focused = True
             pygame.key.start_text_input()
@@ -97,6 +99,15 @@ class InputTextBox(Label):
     def get_text(self) -> str:
         return self._text
 
+    def set_caret_to_pos(self) -> None:
+        px = pygame.mouse.get_pos()[0]
+        px -= self._start_coords[0] - self.edges_width
+        for i in range(len(self._fit_text)):
+            if self._font.size(self._fit_text[:i + 1])[0] > px:
+                self._caret_x = self.text_displacement + i
+                break
+        self._ui_manager.ask_refresh(self)
+
     def get_caret_pos(self) -> None:
         return self.edges_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
 
@@ -105,7 +116,7 @@ class InputTextBox(Label):
         x1 += self.get_caret_pos()
         y2 = y1 + self.get_size()[1] - self.edges_width - 2
         y1 += self.edges_width + 1
-        pygame.draw.line(self._ui_manager.window, "#aaaaaa", (x1, y1), (x1, y2))
+        pygame.draw.line(self._ui_manager.window, self.get_theme_value('caret-color'), (x1, y1), (x1, y2))
 
     def display(self) -> None:
         super().display()
