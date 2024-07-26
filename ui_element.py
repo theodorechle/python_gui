@@ -39,6 +39,7 @@ class UIElement:
         self._visible = visible
         self.hovered = False
         self.clicked = False
+        self.was_clicked = False
         self.unclicked = False
         self.wheel_move = (0, 0)
         self.can_have_focus = False
@@ -120,10 +121,16 @@ class UIElement:
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
-        if self.hovered and self.get_theme_value('hovered-edges-color') is not None:
+        if self.clicked and self.get_theme_value('clicked-egdes-color') is not None:
+            self._ui_manager.ask_refresh()
+        elif self.hovered and self.get_theme_value('hovered-edges-color') is not None:
             self._ui_manager.ask_refresh()
         self.hovered = False
+        if self.clicked:
+            self.was_clicked = True
         self.clicked = False
+        if self.unclicked and self.was_clicked:
+            self.was_clicked = False
         self.unclicked = False
         
     def get_theme_value(self, variable: str) -> Any|None:
@@ -131,7 +138,9 @@ class UIElement:
 
     def display_edge(self) -> None:
         edges_color = None
-        if self.hovered:
+        if self.clicked or self.was_clicked:
+            edges_color = self.get_theme_value('clicked-edges-color')
+        elif self.hovered:
             edges_color = self.get_theme_value('hovered-edges-color')
         if edges_color is None:
             edges_color = self.get_theme_value('edges-color')

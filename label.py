@@ -62,7 +62,9 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         text_color = None
-        if self.hovered:
+        if self.clicked or self.was_clicked:
+            text_color = self.get_theme_value('clicked-text-color')
+        elif self.hovered:
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
@@ -85,6 +87,8 @@ class Label(UIElement):
         return self._text
 
     def update(self) -> None:
+        if self.clicked and self.get_theme_value('clicked-text-color') is not None:
+            self._ui_manager.ask_refresh()
         if self.hovered and self.get_theme_value('hovered-text-color') is not None:
             self._ui_manager.ask_refresh()
         return super().update()

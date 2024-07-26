@@ -116,7 +116,9 @@ class InputTextBox(Label):
 
     def display_text(self) -> None:
         text_color = None
-        if self.hovered:
+        if self.clicked or self.was_clicked:
+            text_color = self.get_theme_value('clicked-text-color')
+        elif self.hovered:
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             if self.is_placeholder_displayed:
