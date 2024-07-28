@@ -35,7 +35,7 @@ class UIManager:
             else:
                 self._theme[element_theme] = theme[element_theme]
 
-    def update_theme(self, path: str=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
+    def update_theme(self, path: str|None=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
         if erase:
             self._theme.clear()
         if path is not None:
@@ -47,7 +47,10 @@ class UIManager:
 
     def get_window_size(self) -> tuple[int, int]:
         return self.window.get_size()
-    
+
+    def get_window(self) -> pygame.Surface:
+        return self.window
+
     def add_element(self, element: UIElement) -> None:
         self._elements.append(element)
         element.update_theme(self._theme)

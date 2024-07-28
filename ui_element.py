@@ -18,15 +18,15 @@ class UIElement:
         - visible: Whether the element should be displayed or not
         - theme_elements_name: a list of the themes' names of the subclasses
         """
-        self.theme_elements_name = ['ui-element'] # a list of the class name and all is subclasses to get the themes
+        self.theme_elements_name: list[str] = ['ui-element'] # a list of the class name and all is subclasses to get the themes
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
-        self._theme = {}
-        self.edges_width = 0
-        self._ui_manager = ui_manager
+        self._theme: dict[str, dict[str, Any]] = {}
+        self.edges_width: int = 0
+        self._ui_manager: UIManagerInterface = ui_manager
         self._ui_manager.add_element(self)
-        self._coords = x, y
-        self._start_coords = x, y
+        self._coords: tuple[int, int] = x, y
+        self._start_coords: tuple[int, int] = x, y
         self._size = (width, height)
         self._relative_width = width is None
         self._relative_height = height is None
@@ -46,7 +46,7 @@ class UIElement:
         self.update_size()
         self.update_start_coords()
 
-    def update_theme(self, theme_dict: dict[str, Any], erase=False) -> None:
+    def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool=False) -> None:
         """If erase is False, only the changed and added values will be set"""
         if erase:
             self._theme.clear()
@@ -55,7 +55,7 @@ class UIElement:
                 self._theme.update(theme_dict[element_name])
         self.edges_width = self.get_theme_value('edges-width')
 
-    def get_start_coords(self) -> None:
+    def get_start_coords(self) -> tuple[int, int]:
         return self._start_coords
 
     def get_surface_rect(self) -> pygame.Rect:
@@ -132,7 +132,7 @@ class UIElement:
         self._ui_manager.ask_refresh()
         return self._visible
 
-    def display_element(self) -> bool:
+    def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
         if self._visible:
             self.display()
@@ -141,7 +141,7 @@ class UIElement:
         """Should not be called directly but using display_element method"""
         background_color = self.get_theme_value('background-color')
         if background_color is not None:
-            pygame.draw.rect(self._ui_manager.window, background_color, pygame.Rect(self.get_start_coords(), self.get_size()))
+            pygame.draw.rect(self._ui_manager.get_window(), background_color, pygame.Rect(self.get_start_coords(), self.get_size()))
         self.display_edge()
     
     def update(self) -> None:
@@ -173,7 +173,7 @@ class UIElement:
         if edges_color is None:
             edges_color = self.get_theme_value('edges-color')
         pygame.draw.rect(
-            self._ui_manager.window,
+            self._ui_manager.get_window(),
             edges_color,
             pygame.Rect(
                 self._start_coords[0],

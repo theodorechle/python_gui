@@ -2,6 +2,8 @@ from ui_element_interface import UIElementInterface
 from pygame.event import Event
 from abc import abstractmethod, ABCMeta
 
+from pygame import Surface
+
 from typing import Any
 
 class UIManagerInterface(metaclass=ABCMeta):
@@ -10,11 +12,11 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
     
     @abstractmethod
-    def update_theme(self, path: str=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
+    def get_window(self) -> Surface:
         pass
 
     @abstractmethod
-    def get_window_size(self) -> tuple[int, int]:
+    def update_theme(self, path: str|None=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
         pass
 
     @abstractmethod
