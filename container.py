@@ -50,3 +50,8 @@ class Container(UIElement):
         super().update_element()
         for element in self._elements:
             element.update_element()
+    
+    def display(self) -> None:
+        super().display()
+        for element in self._elements:
+            element.display()

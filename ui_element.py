@@ -82,32 +82,32 @@ class UIElement(UIElementInterface):
         else:
             parent_rect = self.parent.get_surface_rect()
         if self.anchor == 'top-left':
-            x = parent_rect[0] + self.border_width
-            y = parent_rect[1] + self.border_width
+            x = parent_rect[0]
+            y = parent_rect[1]
         elif self.anchor == 'top':
-            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + self.border_width
+            x = parent_rect[0] + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1]
         elif self.anchor == 'top-right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
-            y = parent_rect[1] + self.border_width
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0]
+            y = parent_rect[1]
         elif self.anchor == 'center':
-            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0] + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'left':
-            x = parent_rect[0] + self.border_width
-            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0]
+            y = parent_rect[1] + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
-            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0]
+            y = parent_rect[1] + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'bottom-left':
-            x = parent_rect[0] + self.border_width
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
+            x = parent_rect[0]
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1]
         elif self.anchor == 'bottom':
-            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
+            x = parent_rect[0] + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1]
         elif self.anchor == 'bottom-right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0]
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1]
 
         add_x = self._first_coords[0]
         if isinstance(add_x, str):
@@ -229,8 +229,8 @@ class UIElement(UIElementInterface):
             pygame.Rect(
                 self._start_coords[0],
                 self._start_coords[1],
-                self._size[0] - self.border_width*2,
-                self._size[1] - self.border_width*2
+                self._size[0],
+                self._size[1]
             ),
             self.get_theme_value('border-width'),
             self.get_theme_value('border-radius'),

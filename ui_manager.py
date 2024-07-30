@@ -88,9 +88,12 @@ class UIManager(UIManagerInterface):
             self._refresh_all = True
             return
         if isinstance(element, UIElementInterface):
+            if element in self._elements_to_display: return
             self._elements_to_display.append(element)
         else:
-            self._elements_to_display.extend(element)
+            for e in element:
+                if e in self._elements_to_display: continue
+                self._elements_to_display.append(e)
 
     def display(self) -> None:
         if self._refresh_all:

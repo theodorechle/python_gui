@@ -20,18 +20,11 @@
     },
     "button": {
         "hovered-border-color": "#888888",
-        "hovered-text-color": "#bbbbbb",
-        "clicked-border-color": "#00ff00"
+        "hovered-text-color": "#bbbbbb"
     },
     "slider": {
         "bar-color": "#dddddd",
         "cursor-color": "#dddddd",
         "border-width": -1
-    },
-    "item-list": {
-        "border-color": "#00ff00"
-    },
-    ":item-list-childs": {
-        "focused-text-color": "#0000ff"
     }
 }

@@ -22,7 +22,7 @@ class ItemList(UIElement):
             on_click_function=self.set_focus_on_child,
             y=len(self._elements) * self.elements_height,
             width=self._size[0],
-            height=self.elements_height + 2*self.border_width,
+            height=self.elements_height,
             classes_names=self.childs_classes_names
             )
         )
@@ -43,9 +43,14 @@ class ItemList(UIElement):
         return self.child_focused.get_text()
 
     def get_content_size(self) -> tuple[int, int]:
-        return (self._size[0] - 2*self.border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH, self.elements_height * len(self._elements))
+        return (self._size[0] - 2*self.border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH, self.elements_height * len(self._elements) - 2*self.border_width)
 
     def update_element(self) -> None:
         super().update_element()
         for element in self._elements:
             element.update_element()
+    
+    def display(self) -> None:
+        super().display()
+        for element in self._elements:
+            element.display()
