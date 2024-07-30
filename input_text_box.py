@@ -1,11 +1,11 @@
 from ui_element import UIElement
-from ui_manager import UIManager
+from ui_manager_interface import UIManagerInterface
 from label import Label
 
 import pygame
 
 class InputTextBox(Label):
-    def __init__(self, ui_manager: UIManager, text: str="", placeholder_text: str="", forbidden_chars: list[str]|None=None, allowed_chars: list[str]|None=None, loose_focus_on_enter: bool=False, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, min_width: int=0, min_height: int=0, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, class_name: str|None=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, text: str="", placeholder_text: str="", forbidden_chars: list[str]|None=None, allowed_chars: list[str]|None=None, loose_focus_on_enter: bool=False, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, min_width: int=0, min_height: int=0, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
         """
         A text box made for input usage.
         """
@@ -26,7 +26,7 @@ class InputTextBox(Label):
         self.is_placeholder_displayed = False
         self.text_displacement = 0
         self.show_caret = False
-        super().__init__(ui_manager, text, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
+        super().__init__(ui_manager, text, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
         self.can_have_focus = True
         self.was_focused = False
         if self.parent is not None:

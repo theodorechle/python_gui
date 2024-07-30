@@ -1,10 +1,11 @@
 from ui_manager_interface import UIManagerInterface
 import pygame
+from ui_element_interface import UIElementInterface
 
 from typing import Any
 
-class UIElement:
-    def __init__(self, ui_manager: UIManagerInterface, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None, class_name: str|None=None) -> None:
+class UIElement(UIElementInterface):
+    def __init__(self, ui_manager: UIManagerInterface, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
@@ -48,7 +49,7 @@ class UIElement:
         self.wheel_move = (0, 0)
         self.can_have_focus = False
         self.focus = False
-        self.class_name = 'default' if class_name is None else class_name
+        self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
         self.update_element()
 
@@ -63,8 +64,9 @@ class UIElement:
         for element_name in self.theme_elements_name:
             if element_name in theme_dict:
                 self._theme.update(theme_dict[element_name])
-        if f':{self.class_name}' in theme_dict:
-            self._theme.update(theme_dict[f':{self.class_name}'])
+        for name in self.classes_names:
+            if f':{name}' in theme_dict:
+                self._theme.update(theme_dict[f':{name}'])
         self.border_width = max(0, self.get_theme_value('border-width'))
 
     def get_start_coords(self) -> tuple[int, int]:
@@ -141,6 +143,9 @@ class UIElement:
             width = content_width
         if self._relative_height:
             height = content_height
+        if self.parent is not None:
+            width = min(width, self.parent._size[0])
+            height = min(height, self.parent._size[1])
         self._size = (width, height)
 
     def get_content_size(self) -> tuple[int, int]:
@@ -165,6 +170,11 @@ class UIElement:
         self._ui_manager.ask_refresh()
         return self._visible
 
+    def set_focus(self, focus: bool) -> bool:
+        if self.can_have_focus:
+            self.focus = focus
+        return self.focus
+
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
         if self._visible:
@@ -182,15 +192,19 @@ class UIElement:
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
-        if self.clicked and self.get_theme_value('clicked-border-color') is not None:
-            self._ui_manager.ask_refresh()
+        if self.focus and self.get_theme_value('focused-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
+        elif self.clicked and self.get_theme_value('clicked-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
         elif self.hovered and self.get_theme_value('hovered-border-color') is not None:
-            self._ui_manager.ask_refresh()
-        self.hovered = False
-        if self.was_clicked and not self.focus:
+            self._ui_manager.ask_refresh(self)
+        if self.was_clicked and not self.hovered:
             self.was_clicked = False
+            self._ui_manager.ask_refresh(self)
+        self.hovered = False
         if self.unclicked and self.was_clicked:
             self.was_clicked = False
+            self._ui_manager.ask_refresh(self)
         if self.clicked:
             self.was_clicked = True
         self.clicked = False
@@ -201,9 +215,11 @@ class UIElement:
 
     def display_borders(self) -> None:
         border_color = None
-        if self.clicked or self.was_clicked:
+        if self.focus:
+            border_color = self.get_theme_value('focused-border-color')
+        if border_color is None and self.was_clicked:
             border_color = self.get_theme_value('clicked-border-color')
-        elif self.hovered:
+        if border_color is None and self.hovered:
             border_color = self.get_theme_value('hovered-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
@@ -229,3 +245,6 @@ class UIElement:
         If the element have the focus and the event can't be processed by the ui manager,
         the element will receive the events in order to process them.
         """
+    
+    def get_parent(self) -> UIElementInterface|None:
+        return self.parent

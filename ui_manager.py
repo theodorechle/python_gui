@@ -1,5 +1,6 @@
 import pygame
-from ui_element import UIElement
+from ui_element_interface import UIElementInterface
+from ui_manager_interface import UIManagerInterface
 
 from json import load, JSONDecodeError
 from typing import Any
@@ -10,16 +11,16 @@ ELEMENT_CLICKED = pygame.event.custom_type()
 ELEMENT_UNCLICKED = pygame.event.custom_type()
 ELEMENT_WHEEL_MOVED = pygame.event.custom_type()
 
-class UIManager:
+class UIManager(UIManagerInterface):
     def __init__(self, window: pygame.Surface) -> None:
         self.window: pygame.Surface = window
-        self._elements: list[UIElement] = []
-        self._elements_to_display: list[UIElement] = []
+        self._elements: list[UIElementInterface] = []
+        self._elements_to_display: list[UIElementInterface] = []
         self._refresh_all = False
-        self._focused_element: UIElement|None = None
+        self._focused_element: UIElementInterface|None = None
         self._theme = self.get_theme(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_theme.json'))
         if not self._theme:
-            raise FileNotFoundError("Can't find default theme file")
+            raise FileNotFoundError("Can't find default theme file or file is not valid json")
 
     def get_theme(self, path: str) -> dict[str, Any]:
         try:
@@ -58,12 +59,12 @@ class UIManager:
     def get_window(self) -> pygame.Surface:
         return self.window
 
-    def add_element(self, element: UIElement) -> None:
+    def add_element(self, element: UIElementInterface) -> None:
         self._elements.append(element)
         element.update_theme(self._theme)
         self.ask_refresh()
     
-    def remove_element(self, element: UIElement) -> None:
+    def remove_element(self, element: UIElementInterface) -> None:
         try:
             self._elements.remove(element)
             self.ask_refresh()
@@ -75,7 +76,7 @@ class UIManager:
         self._elements_to_display.clear()
         self.ask_refresh()
 
-    def ask_refresh(self, element: UIElement|list[UIElement]|None=None) -> None:
+    def ask_refresh(self, element: UIElementInterface|list[UIElementInterface]|None=None) -> None:
         """
         Ask the UIManager to re-display the window the next time it will be called for an update.
         If an element is given, it will only re-display the element.
@@ -86,7 +87,7 @@ class UIManager:
         if element is None:
             self._refresh_all = True
             return
-        if isinstance(element, UIElement):
+        if isinstance(element, UIElementInterface):
             self._elements_to_display.append(element)
         else:
             self._elements_to_display.extend(element)
@@ -104,20 +105,20 @@ class UIManager:
         self._refresh_all = False
         self._elements_to_display.clear()
     
-    def get_hovered_element(self) -> UIElement|None:
+    def get_hovered_element(self) -> UIElementInterface|None:
         x, y = pygame.mouse.get_pos()
         for element in reversed(self._elements): # run backwards as last displayed elements are one the top of the elements
             if element.is_in_element(x, y):
                 return element
 
-    def set_focus(self, element: UIElement|None) -> None:
+    def set_focus(self, element: UIElementInterface|None) -> None:
         if self._focused_element is not None:
-            self._focused_element.focus = False
+            self._focused_element.set_focus(False)
         self._focused_element = element
         if element is not None:
-            element.focus = True
+            element.set_focus(True)
     
-    def get_focus(self) -> UIElement|None:
+    def get_focus(self) -> UIElementInterface|None:
         return self._focused_element
 
     def process_event(self, event: pygame.event.Event) -> None:
@@ -134,7 +135,7 @@ class UIManager:
             while element is not None:
                 element.clicked = True
                 pygame.event.post(pygame.event.Event(ELEMENT_CLICKED, dict={'element': element}))
-                element = element.parent
+                element = element.get_parent()
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
             element = self.get_hovered_element()
@@ -146,7 +147,7 @@ class UIManager:
                     if self.get_focus() != element:
                         self.set_focus(element)
                 pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
-                element = element.parent
+                element = element.get_parent()
             if not is_focused:
                 self.set_focus(None)
         elif event.type == pygame.MOUSEWHEEL:
@@ -154,7 +155,7 @@ class UIManager:
             while element is not None:
                 element.wheel_move = (event.x, event.y)
                 pygame.event.post(pygame.event.Event(ELEMENT_WHEEL_MOVED, dict={'element': element}))
-                element = element.parent
+                element = element.get_parent()
         elif self._focused_element is not None:
             self._focused_element.process_event(event)
 
@@ -166,7 +167,7 @@ class UIManager:
         while element is not None:
             element.hovered = True
             pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
-            element = element.parent
+            element = element.get_parent()
         self.display()
         for element in self._elements:
             element.update()

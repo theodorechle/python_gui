@@ -8,15 +8,23 @@ from typing import Any
 
 class UIManagerInterface(metaclass=ABCMeta):
     @abstractmethod
+    def get_theme(self, path: str) -> dict[str, Any]:
+        pass
+
+    @abstractmethod
+    def _update_elements_themes(self, theme: dict[str,dict[str,Any]]) -> None:
+        pass
+
+    @abstractmethod
+    def update_theme(self, path: str|None=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
+        pass
+
+    @abstractmethod
     def get_window_size(self) -> tuple[int, int]:
         pass
     
     @abstractmethod
     def get_window(self) -> Surface:
-        pass
-
-    @abstractmethod
-    def update_theme(self, path: str|None=None, theme_dict: dict[str, Any]|None=None, erase: bool=False) -> None:
         pass
 
     @abstractmethod
@@ -32,7 +40,7 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def ask_refresh(self, element: UIElementInterface|None=None) -> None:
+    def ask_refresh(self, element: UIElementInterface|list[UIElementInterface]|None=None) -> None:
         """
         Ask the UIManager to re-display the window the next time it will be called for an update.
         If an element is given, it will only re-display the element.

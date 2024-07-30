@@ -1,11 +1,11 @@
-from ui_manager import UIManager
+from ui_manager_interface import UIManagerInterface
 from ui_element import UIElement
 import pygame
 
 class Slider(UIElement):
     DEFAULT_STEP_SIZE: int = 5 # in pixels
     DEFAULT_HEIGHT: int = 10
-    def __init__(self, ui_manager: UIManager, min_value: int, max_value: int, step: int|float|None=None, round_precision: int|None=None, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, class_name: str|None=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, min_value: int, max_value: int, step: int|float|None=None, round_precision: int|None=None, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, classes_names: list[str]|None=None) -> None:
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
@@ -15,7 +15,7 @@ class Slider(UIElement):
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('slider')
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
+        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
         self.can_have_focus = True
         self.value_x = 0
 

@@ -1,11 +1,11 @@
 from typing import Any
 from ui_element import UIElement
-from ui_manager import UIManager
+from ui_manager_interface import UIManagerInterface
 
 from pygame import font
 
 class Label(UIElement):
-    def __init__(self, ui_manager: UIManager, text: str="", x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, class_name: str|None=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, text: str="", x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
         """
         A simple way to display text.
         """
@@ -15,7 +15,7 @@ class Label(UIElement):
             theme_elements_name = []
         theme_elements_name.append('label')
         self._fit_text = self._text
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
+        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
 
         self.can_have_focus = False
     
@@ -62,9 +62,11 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         text_color = None
-        if self.clicked or self.was_clicked:
+        if self.focus:
+            text_color = self.get_theme_value('focused-text-color')
+        if text_color is None and self.was_clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        elif self.hovered:
+        if text_color is None and self.hovered:
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
@@ -98,8 +100,10 @@ class Label(UIElement):
         return self._text
 
     def update(self) -> None:
-        if self.clicked and self.get_theme_value('clicked-text-color') is not None:
-            self._ui_manager.ask_refresh()
-        if self.hovered and self.get_theme_value('hovered-text-color') is not None:
-            self._ui_manager.ask_refresh()
+        if self.focus and self.get_theme_value('focused-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
+        elif self.clicked and self.get_theme_value('clicked-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
+        elif self.hovered and self.get_theme_value('hovered-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
         super().update()

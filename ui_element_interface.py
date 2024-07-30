@@ -2,6 +2,7 @@ from abc import abstractmethod, ABCMeta
 from typing import Any
 
 from pygame.event import Event
+from pygame import Rect
 
 class UIElementInterface(metaclass=ABCMeta):
 
@@ -10,20 +11,31 @@ class UIElementInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def update_theme(self, theme_dict: dict[str, Any], erase=False) -> None:
+    def update_theme(self, theme_dict: dict[str, Any], erase: bool=False) -> None:
         """If erase is False, only the changed and added values will be set"""
-
-    @abstractmethod
-    def update_start_coords(self) -> None:
-        pass
 
     @abstractmethod
     def get_start_coords(self) -> tuple[int, int]:
         pass
     
     @abstractmethod
+    def get_surface_rect(self) -> Rect:
+        pass
+
+    @abstractmethod
+    def update_start_coords(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_relative_width(self, width: str) -> int:
+        pass
+
+    def get_relative_height(self, height: str) -> int:
+        pass
+
+    @abstractmethod
     def update_size(self) -> None:
-        ...
+        pass
 
     @abstractmethod
     def get_content_size(self) -> tuple[int, int]:
@@ -48,11 +60,15 @@ class UIElementInterface(metaclass=ABCMeta):
     @abstractmethod
     def toggle_visibility(self) -> bool:
         """Returns True if visible else False"""
+    
+    @abstractmethod
+    def set_focus(self, focus: bool) -> bool:
+        pass
 
     @abstractmethod
-    def display_element(self) -> bool:
+    def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
-    
+
     @abstractmethod
     def display(self) -> None:
         """Should not be called directly but using display_element method"""
@@ -78,3 +94,7 @@ class UIElementInterface(metaclass=ABCMeta):
         If the element have the focus and the event can't be processed by the ui manager,
         the element will receive the events in order to process them.
         """
+    
+    @abstractmethod
+    def get_parent(self) -> 'UIElementInterface|None':
+        pass
