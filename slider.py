@@ -9,7 +9,7 @@ class Slider(UIElement):
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
-        self.value:int|float = self.min_value
+        self._value:int|float = self.min_value
         self.round_precision = round_precision
         self.cursor_radius = self.DEFAULT_HEIGHT
         if theme_elements_name is None:
@@ -18,6 +18,16 @@ class Slider(UIElement):
         super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
         self.can_have_focus = True
         self.value_x = 0
+
+    def get_value(self) -> int|float:
+        return self._value
+
+    def set_value(self, value: int|float) -> None:
+        value = max(min(self.max_value, value), self.min_value)
+        self._value = value
+        size_step = (self._size[0] - self.cursor_radius * 2) / ((self.max_value - self.min_value) / self.step)
+        self.value_x = (value - self.min_value) / self.step * size_step
+        self._ui_manager.ask_refresh(self)
 
     def get_content_size(self) -> tuple[int, int]:
         nb_values = self.max_value - self.min_value
@@ -35,9 +45,9 @@ class Slider(UIElement):
     def update(self) -> None:
         super().update()
         if self.was_clicked:
-            self.set_value()
+            self.set_value_with_mouse_pos()
 
-    def set_value(self) -> None:
+    def set_value_with_mouse_pos(self) -> None:
         x = pygame.mouse.get_pos()[0]
         x -= self._start_coords[0]
         x -= self.cursor_radius
@@ -52,7 +62,7 @@ class Slider(UIElement):
             x = 100 * x / self._size[0]
         if self.round_precision is not None:
             x = round(x, self.round_precision)
-        self.value = x
+        self._value = x
         self._ui_manager.ask_refresh(self)
 
     def display(self) -> None:
