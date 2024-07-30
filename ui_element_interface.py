@@ -69,7 +69,7 @@ class UIElementInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def display_edge(self) -> None:
+    def display_borders(self) -> None:
         pass
 
     @abstractmethod

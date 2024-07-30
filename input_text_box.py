@@ -51,8 +51,8 @@ class InputTextBox(Label):
         width, height = self._size
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
-            content_width += 2*self.edges_width
-            content_height += 2*self.edges_width
+            content_width += 2*self.border_width
+            content_height += 2*self.border_width
         if self._relative_width:
             width = content_width
             width += self._caret_width + 2
@@ -117,7 +117,7 @@ class InputTextBox(Label):
             self._ui_manager.ask_refresh(self)
             return
         px = pygame.mouse.get_pos()[0]
-        px -= self._start_coords[0] - self.edges_width
+        px -= self._start_coords[0] - self.border_width
         for i in range(len(self._fit_text)):
             if self._font.size(self._fit_text[:i + 1])[0] > px:
                 self._caret_x = self.text_displacement + i
@@ -125,7 +125,7 @@ class InputTextBox(Label):
         self._ui_manager.ask_refresh(self)
 
     def get_caret_pos(self) -> None:
-        return self.edges_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
+        return self.border_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
 
     def display_text(self) -> None:
         text_color = None
@@ -138,14 +138,14 @@ class InputTextBox(Label):
                 text_color = self.get_theme_value('placeholder-color')
             else:
                 text_color = self.get_theme_value('text-color')
-        self._ui_manager.window.blit(self._font
-            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
+        self._ui_manager.get_window().blit(self._font
+            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.border_width, self._start_coords[1] + self.border_width))
 
     def display_caret(self) -> None:
         x1, y1 = self.get_start_coords()
         x1 += self.get_caret_pos()
-        y2 = y1 + self.get_size()[1] - self.edges_width - 2
-        y1 += self.edges_width + 1
+        y2 = y1 + self.get_size()[1] - self.border_width - 2
+        y1 += self.border_width + 1
         pygame.draw.line(self._ui_manager.window, self.get_theme_value('caret-color'), (x1, y1), (x1, y2))
 
     def display(self) -> None:
@@ -158,7 +158,7 @@ class InputTextBox(Label):
         Set in 'self._fit_text' the text who can be entirely displayed with the actual size
         """
         if not self.is_placeholder_displayed and not self._relative_width:
-            while self.get_caret_pos() > self.get_size()[0] - self.edges_width:
+            while self.get_caret_pos() > self.get_size()[0] - self.border_width:
                 self.text_displacement += 1
             while self._caret_x < self.text_displacement:
                 self.text_displacement -= 1
@@ -178,10 +178,10 @@ class InputTextBox(Label):
                     break
                 self._fit_text += char
         if not self._relative_height:
-            if self._font.size(self._fit_text)[1] + 2*self.edges_width > self._size[1]:
+            if self._font.size(self._fit_text)[1] + 2*self.border_width > self._size[1]:
                 self._fit_text = ''
     
-    def get_text(self) -> None:
+    def get_text(self) -> str:
         if self.is_placeholder_displayed:
             return ''
         return self._text

@@ -22,9 +22,8 @@ class UIElement:
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
         self._theme: dict[str, dict[str, Any]] = {}
-        self.edges_width: int = 0
+        self.border_width: int = 0
         self._ui_manager: UIManagerInterface = ui_manager
-        self._ui_manager.add_element(self)
         self._coords: tuple[int, int] = x, y
         self._start_coords: tuple[int, int] = x, y
         self._size = (width, height)
@@ -40,6 +39,7 @@ class UIElement:
         self.wheel_move = (0, 0)
         self.can_have_focus = False
         self.focus = False
+        self._ui_manager.add_element(self)
         self.update_element()
 
     def update_element(self) -> None:
@@ -53,7 +53,9 @@ class UIElement:
         for element_name in self.theme_elements_name:
             if element_name in theme_dict:
                 self._theme.update(theme_dict[element_name])
-        self.edges_width = self.get_theme_value('edges-width')
+        self.border_width = max(0, self.get_theme_value('border-width'))
+        self.update_element()
+        self._ui_manager.ask_refresh()
 
     def get_start_coords(self) -> tuple[int, int]:
         return self._start_coords
@@ -68,32 +70,32 @@ class UIElement:
         else:
             parent_rect = self.parent.get_surface_rect()
         if self.anchor == 'top-left':
-            x = parent_rect[0] + self.edges_width
-            y = parent_rect[1] + self.edges_width
+            x = parent_rect[0] + self.border_width
+            y = parent_rect[1] + self.border_width
         elif self.anchor == 'top':
-            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + self.edges_width
+            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + self.border_width
         elif self.anchor == 'top-right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
-            y = parent_rect[1] + self.edges_width
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
+            y = parent_rect[1] + self.border_width
         elif self.anchor == 'center':
-            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'left':
-            x = parent_rect[0] + self.edges_width
-            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0] + self.border_width
+            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
-            y = parent_rect[1] + self.edges_width + parent_rect[3] // 2 - self.get_size()[1] // 2
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
+            y = parent_rect[1] + self.border_width + parent_rect[3] // 2 - self.get_size()[1] // 2
         elif self.anchor == 'bottom-left':
-            x = parent_rect[0] + self.edges_width
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+            x = parent_rect[0] + self.border_width
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
         elif self.anchor == 'bottom':
-            x = parent_rect[0] + self.edges_width + parent_rect[2] // 2 - self.get_size()[0] // 2
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+            x = parent_rect[0] + self.border_width + parent_rect[2] // 2 - self.get_size()[0] // 2
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
         elif self.anchor == 'bottom-right':
-            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.edges_width
-            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.edges_width
+            x = parent_rect[0] + parent_rect[2] - self.get_size()[0] - self.border_width
+            y = parent_rect[1] + parent_rect[3] - self.get_size()[1] - self.border_width
         x += self._coords[0]
         y += self._coords[1]
         self._start_coords = x, y
@@ -102,8 +104,8 @@ class UIElement:
         width, height = self._size
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
-            content_width += 2*self.edges_width
-            content_height += 2*self.edges_width
+            content_width += 2*self.border_width
+            content_height += 2*self.border_width
         if self._relative_width:
             width = content_width
         if self._relative_height:
@@ -138,25 +140,27 @@ class UIElement:
             self.display()
     
     def display(self) -> None:
-        """Should not be called directly but using display_element method"""
+        """Should not be called directly by external programs but using display_element method"""
         background_color = self.get_theme_value('background-color')
         if background_color is not None:
             pygame.draw.rect(self._ui_manager.get_window(), background_color, pygame.Rect(self.get_start_coords(), self.get_size()))
-        self.display_edge()
+        self.display_borders()
     
     def update(self) -> None:
         """
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
-        if self.clicked and self.get_theme_value('clicked-egdes-color') is not None:
+        if self.clicked and self.get_theme_value('clicked-border-color') is not None:
             self._ui_manager.ask_refresh()
-        elif self.hovered and self.get_theme_value('hovered-edges-color') is not None:
+        elif self.hovered and self.get_theme_value('hovered-border-color') is not None:
             self._ui_manager.ask_refresh()
         self.hovered = False
         if self.clicked:
             self.was_clicked = True
         self.clicked = False
+        if self.was_clicked and not self.focus:
+            self.was_clicked = False
         if self.unclicked and self.was_clicked:
             self.was_clicked = False
         self.unclicked = False
@@ -164,24 +168,24 @@ class UIElement:
     def get_theme_value(self, variable: str) -> Any|None:
         return self._theme.get(variable)
 
-    def display_edge(self) -> None:
-        edges_color = None
+    def display_borders(self) -> None:
+        border_color = None
         if self.clicked or self.was_clicked:
-            edges_color = self.get_theme_value('clicked-edges-color')
+            border_color = self.get_theme_value('clicked-border-color')
         elif self.hovered:
-            edges_color = self.get_theme_value('hovered-edges-color')
-        if edges_color is None:
-            edges_color = self.get_theme_value('edges-color')
+            border_color = self.get_theme_value('hovered-border-color')
+        if border_color is None:
+            border_color = self.get_theme_value('border-color')
         pygame.draw.rect(
             self._ui_manager.get_window(),
-            edges_color,
+            border_color,
             pygame.Rect(
                 self._start_coords[0],
                 self._start_coords[1],
                 self._size[0],
                 self._size[1]
             ),
-            self.edges_width,
+            self.get_theme_value('border-width'),
             self.get_theme_value('border-radius'),
             self.get_theme_value('border-top-left-radius'),
             self.get_theme_value('border-top-right-radius'),

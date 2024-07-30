@@ -1,7 +1,7 @@
 {
     "ui-element": {
-        "edges-width": 1,
-        "edges-color": "#bbbbbb",
+        "border-width": 1,
+        "border-color": "#bbbbbb",
         "border-radius": 0,
         "border-top-left-radius": -1,
         "border-top-right-radius": -1,
@@ -19,7 +19,13 @@
         "placeholder-color": "#888888"
     },
     "button": {
-        "hovered-edges-color": "#888888",
-        "hovered-text-color": "#bbbbbb"
+        "hovered-border-color": "#888888",
+        "hovered-text-color": "#bbbbbb",
+        "border-color": "#ff0000"
+    },
+    "slider": {
+        "bar-color": "#dddddd",
+        "cursor-color": "#dddddd",
+        "border-width": -1
     }
 }

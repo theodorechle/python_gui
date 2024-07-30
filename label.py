@@ -19,7 +19,7 @@ class Label(UIElement):
 
         self.can_have_focus = False
     
-    def update_theme(self, theme_dict: dict[str, Any], erase=False) -> None:
+    def update_theme(self, theme_dict: dict[str, Any], erase: bool=False) -> None:
         super().update_theme(theme_dict, erase)
         self.update_font()
 
@@ -52,7 +52,7 @@ class Label(UIElement):
                     break
                 self._fit_text += char
         if not self._relative_height:
-            if self._font.size(self._fit_text)[1] + 2*self.edges_width > self._size[1]:
+            if self._font.size(self._fit_text)[1] + 2*self.border_width > self._size[1]:
                 self._fit_text = ''
 
     def get_text_size(self) -> tuple[int, int]:
@@ -68,8 +68,8 @@ class Label(UIElement):
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
-        self._ui_manager.window.blit(self._font
-            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.edges_width, self._start_coords[1] + self.edges_width))
+        self._ui_manager.get_window().blit(self._font
+            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.border_width, self._start_coords[1] + self.border_width))
 
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()
@@ -91,4 +91,4 @@ class Label(UIElement):
             self._ui_manager.ask_refresh()
         if self.hovered and self.get_theme_value('hovered-text-color') is not None:
             self._ui_manager.ask_refresh()
-        return super().update()
+        super().update()
