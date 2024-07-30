@@ -187,13 +187,13 @@ class UIElement:
         elif self.hovered and self.get_theme_value('hovered-border-color') is not None:
             self._ui_manager.ask_refresh()
         self.hovered = False
-        if self.clicked:
-            self.was_clicked = True
-        self.clicked = False
         if self.was_clicked and not self.focus:
             self.was_clicked = False
         if self.unclicked and self.was_clicked:
             self.was_clicked = False
+        if self.clicked:
+            self.was_clicked = True
+        self.clicked = False
         self.unclicked = False
         
     def get_theme_value(self, variable: str) -> Any|None:
