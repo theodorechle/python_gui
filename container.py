@@ -2,9 +2,9 @@ from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 
 class Container(UIElement):
-    def __init__(self, ui_manager: UIManagerInterface, x: int = 0, y: int = 0, width: int | None = None, height: int | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, x: int = 0, y: int = 0, width: int | None = None, height: int | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, class_name: str|None=None) -> None:
         self._elements: list[UIElement] = []
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name)
+        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
     
     def add_element(self, element: UIElement) -> None:
         self._elements.append(element)

@@ -26,6 +26,7 @@ class UIManager:
             with open(path) as f:
                 return load(f)
         except (FileNotFoundError, JSONDecodeError):
+            print(f"Path '{path}' not found")
             return {}
     
     def _update_elements_themes(self, theme: dict[str,dict[str,Any]]) -> None:
@@ -48,6 +49,7 @@ class UIManager:
         if changed:
             for element in self._elements:
                 element.update_theme(self._theme, erase)
+                element.update_element()
             self.ask_refresh()
 
     def get_window_size(self) -> tuple[int, int]:

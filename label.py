@@ -5,7 +5,7 @@ from ui_manager import UIManager
 from pygame import font
 
 class Label(UIElement):
-    def __init__(self, ui_manager: UIManager, text: str="", x: int=0, y: int=0, width: int|None=None, height: int|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None) -> None:
+    def __init__(self, ui_manager: UIManager, text: str="", x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, class_name: str|None=None) -> None:
         """
         A simple way to display text.
         """
@@ -15,7 +15,7 @@ class Label(UIElement):
             theme_elements_name = []
         theme_elements_name.append('label')
         self._fit_text = self._text
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name)
+        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, class_name)
 
         self.can_have_focus = False
     
@@ -68,8 +68,19 @@ class Label(UIElement):
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
+        text_size = self.get_text_size()
+        start_x, start_y = 0, 0
+        if self.get_theme_value('horizontal-center'):
+            start_x = self._size[0] // 2 - text_size[0] // 2
+        if self.get_theme_value('vertical-center'):
+            start_y = self._size[1] // 2 - text_size[1] // 2
         self._ui_manager.get_window().blit(self._font
-            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.border_width, self._start_coords[1] + self.border_width))
+                    .render(self._fit_text,
+                            self.get_theme_value('antialias'),
+                            text_color),
+                    (self._start_coords[0] + self.border_width + start_x,
+                     self._start_coords[1] + self.border_width + start_y)
+        )
 
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()
