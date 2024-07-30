@@ -86,8 +86,11 @@ class ItemList(UIElement):
     
     def scroll_elements(self) -> None:
         y = self.wheel_move[1]
-        if y == 1 and self._elements[0]._start_coords[1] >= self._start_coords[1]: return
-        if y == -1 and self._elements[-1]._start_coords[1] + self._elements[-1]._size[1] <= self._start_coords[1] + self._size[1]: return
+        if y >= 0:
+            y = min(y, (self._start_coords[1] - self._elements[0]._start_coords[1]) // self.SCROLL_DISPLACEMENT)
+        if y <= 0:
+            y = max(y, (self._start_coords[1] + self._size[1] - self._elements[-1]._start_coords[1] + self._elements[-1]._size[1]) //self.SCROLL_DISPLACEMENT)
+        if y == 0: return
         for element in self._elements:
             element._first_coords = (element._first_coords[0], element._first_coords[1] + self.SCROLL_DISPLACEMENT * y)
             element.update_start_coords()
