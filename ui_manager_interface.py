@@ -54,7 +54,7 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
     
     @abstractmethod
-    def get_hovered_element(self) -> UIElementInterface|None:
+    def get_hovered_element(self) -> list[UIElementInterface]:
         pass
 
     @abstractmethod

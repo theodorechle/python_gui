@@ -52,7 +52,7 @@ class Label(UIElement):
                     break
                 self._fit_text += char
         if not self._relative_height:
-            if self._font.size(self._fit_text)[1] + 2*self.border_width > self._size[1]:
+            if self._font.size(self._fit_text)[1] > self._size[1]:
                 self._fit_text = ''
 
     def get_text_size(self) -> tuple[int, int]:
@@ -66,7 +66,7 @@ class Label(UIElement):
             text_color = self.get_theme_value('focused-text-color')
         if text_color is None and self.was_clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        if text_color is None and self.hovered:
+        if text_color is None and self.was_hovered:
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
@@ -76,12 +76,27 @@ class Label(UIElement):
             start_x = self._size[0] // 2 - text_size[0] // 2
         if self.get_theme_value('vertical-center'):
             start_y = self._size[1] // 2 - text_size[1] // 2
+        text = self._fit_text
+        start_x += self._start_coords[0] + self.border_width
+        start_y += self._start_coords[1] + self.border_width
+        if self.parent is not None:
+            if start_y < self.parent._start_coords[1] or start_y + text_size[1] > self.parent._start_coords[1] + self.parent._size[1]:
+                return
+            while text and start_x < self.parent._start_coords[0]:
+                char_length = self._font.size(text[0])[0]
+                text = text[1:]
+                start_x += char_length
+                text_size = text_size[0] - char_length, text_size[1]
+            while text and start_x + text_size[0] > self.parent._start_coords[0] + self.parent._size[0]:
+                char_length = self._font.size(text[-1])[0]
+                text = text[:-1]
+                text_size = text_size[0] - char_length, text_size[1]
+
         self._ui_manager.get_window().blit(self._font
-                    .render(self._fit_text,
+                    .render(text,
                             self.get_theme_value('antialias'),
                             text_color),
-                    (self._start_coords[0] + self.border_width + start_x,
-                     self._start_coords[1] + self.border_width + start_y)
+                    (start_x, start_y)
         )
 
     def get_content_size(self) -> tuple[int, int]:
@@ -102,8 +117,8 @@ class Label(UIElement):
     def update(self) -> None:
         if self.focus and self.get_theme_value('focused-text-color') is not None:
             self._ui_manager.ask_refresh(self)
-        elif self.clicked and self.get_theme_value('clicked-text-color') is not None:
-            self._ui_manager.ask_refresh(self)
-        elif self.hovered and self.get_theme_value('hovered-text-color') is not None:
-            self._ui_manager.ask_refresh(self)
         super().update()
+        if self.was_clicked and self.get_theme_value('clicked-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
+        elif self.was_hovered and self.get_theme_value('hovered-text-color') is not None:
+            self._ui_manager.ask_refresh(self)

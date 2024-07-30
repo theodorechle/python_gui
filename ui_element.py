@@ -43,12 +43,14 @@ class UIElement(UIElementInterface):
         self.parent = parent
         self._visible = visible
         self.hovered = False
+        self.was_hovered = False
         self.clicked = False
         self.was_clicked = False
         self.unclicked = False
         self.wheel_move = (0, 0)
         self.can_have_focus = False
         self.focus = False
+        self.clear = False
         self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
         self.update_element()
@@ -143,9 +145,6 @@ class UIElement(UIElementInterface):
             width = content_width
         if self._relative_height:
             height = content_height
-        if self.parent is not None:
-            width = min(width, self.parent._size[0])
-            height = min(height, self.parent._size[1])
         self._size = (width, height)
 
     def get_content_size(self) -> tuple[int, int]:
@@ -194,21 +193,31 @@ class UIElement(UIElementInterface):
         """
         if self.focus and self.get_theme_value('focused-border-color') is not None:
             self._ui_manager.ask_refresh(self)
-        elif self.clicked and self.get_theme_value('clicked-border-color') is not None:
-            self._ui_manager.ask_refresh(self)
-        elif self.hovered and self.get_theme_value('hovered-border-color') is not None:
-            self._ui_manager.ask_refresh(self)
         if self.was_clicked and not self.hovered:
             self.was_clicked = False
             self._ui_manager.ask_refresh(self)
+        if self.was_hovered and not self.hovered:
+            self.was_hovered = False
+            if self.get_theme_value('hovered-border-color') is not None:
+                self._ui_manager.ask_refresh(self)
+        if self.hovered:
+            self.was_hovered = True
+            if self.get_theme_value('hovered-border-color') is not None:
+                self._ui_manager.ask_refresh(self)
         self.hovered = False
         if self.unclicked and self.was_clicked:
             self.was_clicked = False
             self._ui_manager.ask_refresh(self)
+            if self.get_theme_value('clicked-border-color') is not None:
+                self._ui_manager.ask_refresh(self)
         if self.clicked:
             self.was_clicked = True
+            if self.get_theme_value('clicked-border-color') is not None:
+                self._ui_manager.ask_refresh(self)
         self.clicked = False
         self.unclicked = False
+        self.wheel_move = (0, 0)
+        self.clear = False
         
     def get_theme_value(self, variable: str) -> Any|None:
         return self._theme.get(variable)
@@ -219,18 +228,34 @@ class UIElement(UIElementInterface):
             border_color = self.get_theme_value('focused-border-color')
         if border_color is None and self.was_clicked:
             border_color = self.get_theme_value('clicked-border-color')
-        if border_color is None and self.hovered:
+        if border_color is None and self.was_hovered:
             border_color = self.get_theme_value('hovered-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
+        start_x, start_y = self._start_coords
+        length, height = self._size
+        if self.parent is not None:
+            if start_x >= self.parent._start_coords[0]:
+                length = max(min(length, self.parent._size[0] - (self._start_coords[0] - self.parent._start_coords[0])), 0)
+            else:
+                length = max(length - (self.parent._start_coords[0] - self._start_coords[0]), 0)
+            if start_y >= self.parent._start_coords[1]:
+                height = max(min(height, self.parent._size[1] - (self._start_coords[1] - self.parent._start_coords[1])), 0)
+            else:
+                height = max(height - (self.parent._start_coords[1] - self._start_coords[1]), 0)
+            
+            start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
+            start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])
+        if self.clear:
+            self._ui_manager.get_window().fill("#000000", (start_x, start_y, length, height))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,
             pygame.Rect(
-                self._start_coords[0],
-                self._start_coords[1],
-                self._size[0],
-                self._size[1]
+                start_x,
+                start_y,
+                length,
+                height
             ),
             self.get_theme_value('border-width'),
             self.get_theme_value('border-radius'),

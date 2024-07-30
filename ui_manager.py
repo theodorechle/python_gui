@@ -103,16 +103,14 @@ class UIManager(UIManagerInterface):
             elements = self._elements_to_display
         for element in elements:
             if not self._refresh_all:
-                self.window.fill("#000000", element.get_surface_rect())
+                element.clear = True
             element.display_element()
         self._refresh_all = False
         self._elements_to_display.clear()
     
-    def get_hovered_element(self) -> UIElementInterface|None:
+    def get_hovered_element(self) -> list[UIElementInterface]:
         x, y = pygame.mouse.get_pos()
-        for element in reversed(self._elements): # run backwards as last displayed elements are one the top of the elements
-            if element.is_in_element(x, y):
-                return element
+        return [element for element in self._elements if element.is_in_element(x, y)]
 
     def set_focus(self, element: UIElementInterface|None) -> None:
         if self._focused_element is not None:
@@ -134,31 +132,28 @@ class UIManager(UIManagerInterface):
             pass
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button in (4, 5): return # wheel
-            element = self.get_hovered_element()
-            while element is not None:
+            elements = self.get_hovered_element()
+            for element in elements:
                 element.clicked = True
                 pygame.event.post(pygame.event.Event(ELEMENT_CLICKED, dict={'element': element}))
-                element = element.get_parent()
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
-            element = self.get_hovered_element()
+            elements = self.get_hovered_element()
             is_focused = False
-            while element is not None:
+            for element in elements:
                 element.unclicked = True
                 if not is_focused and element.can_have_focus:
                     is_focused = True
                     if self.get_focus() != element:
                         self.set_focus(element)
                 pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
-                element = element.get_parent()
             if not is_focused:
                 self.set_focus(None)
         elif event.type == pygame.MOUSEWHEEL:
-            element = self.get_hovered_element()
-            while element is not None:
+            elements = self.get_hovered_element()
+            for element in elements:
                 element.wheel_move = (event.x, event.y)
                 pygame.event.post(pygame.event.Event(ELEMENT_WHEEL_MOVED, dict={'element': element}))
-                element = element.get_parent()
         elif self._focused_element is not None:
             self._focused_element.process_event(event)
 
@@ -166,11 +161,10 @@ class UIManager(UIManagerInterface):
     def update(self) -> None:
         """Refresh the window if needed and creates events (click, hover)"""
 
-        element = self.get_hovered_element()
-        while element is not None:
+        elements = self.get_hovered_element()
+        for element in elements:
             element.hovered = True
             pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
-            element = element.get_parent()
         self.display()
         for element in self._elements:
             element.update()
