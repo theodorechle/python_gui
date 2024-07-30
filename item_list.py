@@ -68,9 +68,9 @@ class ItemList(UIElement):
         if height != 0:
             height -= 2*self.border_width
         if not self._relative_width:
-            width = min(self._first_size[0], width)
+            width = min(self._size[0], width)
         if not self._relative_height:
-            height = min(self._first_size[1], height)
+            height = min(self._size[1], height)
         
         return width, height
 
