@@ -213,8 +213,8 @@ class UIElement:
             pygame.Rect(
                 self._start_coords[0],
                 self._start_coords[1],
-                self._size[0],
-                self._size[1]
+                self._size[0] - self.border_width*2,
+                self._size[1] - self.border_width*2
             ),
             self.get_theme_value('border-width'),
             self.get_theme_value('border-radius'),

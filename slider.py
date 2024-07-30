@@ -56,6 +56,8 @@ class Slider(UIElement):
         if self.step:
             size_step = (self._size[0] - self.cursor_radius * 2) / ((self.max_value - self.min_value) / self.step)
             x /= size_step
+            if isinstance(self.step, int):
+                x = round(x)
             x *= self.step
             x += self.min_value
         else:
