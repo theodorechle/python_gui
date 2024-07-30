@@ -32,14 +32,14 @@ class Slider(UIElement):
     def get_content_size(self) -> tuple[int, int]:
         nb_values = self.max_value - self.min_value
         if self._relative_width:
-            length = self.DEFAULT_STEP_SIZE*nb_values + self.cursor_radius + self.border_width*2
+            length = self.DEFAULT_STEP_SIZE*nb_values + self.cursor_radius
         else:
             length = self._size[0]
         if self._relative_height:
-            height = self.DEFAULT_HEIGHT + self.cursor_radius + self.border_width*2
+            height = self.DEFAULT_HEIGHT + self.cursor_radius
         else:
             height = self._size[1]
-            self.cursor_radius = height//2 - self.border_width
+            self.cursor_radius = height//2
         return (length, height)
     
     def update(self) -> None:
@@ -93,6 +93,6 @@ class Slider(UIElement):
         pygame.draw.circle(
             self._ui_manager.get_window(),
             self.get_theme_value('cursor-color'),
-            (self.value_x + self._start_coords[0] + self.cursor_radius, self._start_coords[1] + self.cursor_radius + self.border_width),
+            (self.value_x + self._start_coords[0] + self.cursor_radius, self._start_coords[1] + self.cursor_radius),
             self.cursor_radius
         )

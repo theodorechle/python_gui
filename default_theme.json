@@ -28,6 +28,9 @@
         "cursor-color": "#dddddd",
         "border-width": -1
     },
+    "item-list": {
+        "border-color": "#00ff00"
+    },
     ":item-list-childs": {
         "focused-text-color": "#0000ff"
     }
