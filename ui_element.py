@@ -17,6 +17,10 @@ class UIElement:
             Default is top-left
         - visible: Whether the element should be displayed or not
         - theme_elements_name: a list of the themes' names of the subclasses
+
+        Note:
+            x, y, width and height can be strings, in which case they will be considered as a percentage of the screen size.
+            They must be valid integers, and can be followed by an optional '%'.
         """
         self.theme_elements_name: list[str] = ['ui-element'] # a list of the class name and all is subclasses to get the themes
         if theme_elements_name is not None:
