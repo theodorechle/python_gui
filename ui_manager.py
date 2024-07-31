@@ -150,9 +150,12 @@ class UIManager(UIManagerInterface):
             if not is_focused:
                 self.set_focus(None)
         elif event.type == pygame.MOUSEWHEEL:
+            x, y = event.x, event.y
+            if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                x, y = y, x
             elements = self.get_hovered_element()
             for element in elements:
-                element.wheel_move = (event.x, event.y)
+                element.wheel_move = x, y
                 pygame.event.post(pygame.event.Event(ELEMENT_WHEEL_MOVED, dict={'element': element}))
         elif self._focused_element is not None:
             self._focused_element.process_event(event)

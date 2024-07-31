@@ -80,17 +80,16 @@ class Label(UIElement):
         start_x += self._start_coords[0] + self.border_width
         start_y += self._start_coords[1] + self.border_width
         if self.parent is not None:
-            if start_y < self.parent._start_coords[1] or start_y + text_size[1] > self.parent._start_coords[1] + self.parent._size[1] + self.parent.border_width:
+            if start_y < self.parent._start_coords[1] or start_y + text_size[1] > self.parent._start_coords[1] + self.parent._size[1] - self.parent.border_width:
                 return
             while text and start_x < self.parent._start_coords[0]:
                 char_length = self._font.size(text[0])[0]
                 text = text[1:]
                 start_x += char_length
                 text_size = text_size[0] - char_length, text_size[1]
-            while text and start_x + text_size[0] > self.parent._start_coords[0] + self.parent._size[0] + self.parent.border_width:
-                char_length = self._font.size(text[-1])[0]
+            while text and start_x + text_size[0] >= self.parent._start_coords[0] + self.parent._size[0] - self.parent.border_width * 3:
+                text_size = self._font.size(text[1:])
                 text = text[:-1]
-                text_size = text_size[0] - char_length, text_size[1]
 
         self._ui_manager.get_window().blit(self._font
                     .render(text,

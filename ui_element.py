@@ -241,11 +241,17 @@ class UIElement(UIElementInterface):
             if start_x >= self.parent._start_coords[0]:
                 length = max(min(length, self.parent._size[0] - (self._start_coords[0] - self.parent._start_coords[0])), 0)
             else:
-                length = max(length - (self.parent._start_coords[0] - self._start_coords[0]), 0)
+                if length >= self.parent._size[0]:
+                    length = max(min(length, self.parent._size[0]), 0)
+                else:
+                    length = max(length - (self.parent._start_coords[0] - self._start_coords[0]), 0)
             if start_y >= self.parent._start_coords[1]:
                 height = max(min(height, self.parent._size[1] - (self._start_coords[1] - self.parent._start_coords[1])), 0)
             else:
-                height = max(height - (self.parent._start_coords[1] - self._start_coords[1]), 0)
+                if height >= self.parent._size[1]:
+                    height = max(min(height, self.parent._size[1]), 0)
+                else:
+                    height = max(height - (self.parent._start_coords[1] - self._start_coords[1]), 0)
             
             start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
             start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])

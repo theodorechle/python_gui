@@ -15,18 +15,14 @@ class ItemList(UIElement):
         super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
         self.child_focused: Button|None = None
         self.childs_classes_names = childs_classes_names
+        self.max_child_size = 0
     
     def add_element(self, text: str) -> None:
-        if self._relative_width:
-            width = None
-        else:
-            width = self._size[0]
         self._elements.append(Button(
             self._ui_manager,
             text,
             on_click_function=self.set_focus_on_child,
             y=len(self._elements) * self.elements_height,
-            width=width,
             height=self.elements_height,
             classes_names=self.childs_classes_names,
             parent=self
@@ -34,23 +30,19 @@ class ItemList(UIElement):
         )
         self._elements[-1].can_have_focus = True
         self._elements[-1].fill_parent = True
+        self.max_child_size = max(self.max_child_size, self._elements[-1]._size[0])
         if self._relative_width:
-            self._size = (max(self._size[0], self._elements[-1]._size[0]), self._size[1])
+            self._size = (self.max_child_size, self._size[1])
         self._ui_manager.ask_refresh()
         self.update_element()
     
     def add_elements(self, texts: list[str]) -> None:
         for text in texts:
-            if self._relative_width:
-                width = None
-            else:
-                width = self._size[0]
             self._elements.append(Button(
                 self._ui_manager,
                 text,
                 on_click_function=self.set_focus_on_child,
                 y=len(self._elements) * self.elements_height,
-                width=width,
                 height=self.elements_height,
                 classes_names=self.childs_classes_names,
                 parent=self
@@ -58,8 +50,9 @@ class ItemList(UIElement):
             )
             self._elements[-1].can_have_focus = True
             self._elements[-1].fill_parent = True
+            self.max_child_size = max(self.max_child_size, self._elements[-1]._size[0])
             if self._relative_width:
-                self._size = (max(self._size[0], self._elements[-1]._size[0]), self._size[1])
+                self._size = (self.max_child_size, self._size[1])
         self._ui_manager.ask_refresh()
         self.update_element()
     
@@ -89,6 +82,8 @@ class ItemList(UIElement):
     def update_element(self) -> None:
         super().update_element()
         for element in self._elements:
+            element._first_size = self.max_child_size, element._first_size[1]
+            element._relative_width = False
             element.update_element()
     
     def display(self) -> None:
@@ -101,14 +96,19 @@ class ItemList(UIElement):
         if y >= 0:
             y = min(y, (self._start_coords[1] - self._elements[0]._start_coords[1]) // self.SCROLL_DISPLACEMENT)
         if y <= 0:
-            y = max(y, (self._start_coords[1] + self._size[1] - self._elements[-1]._start_coords[1] + self._elements[-1]._size[1]) //self.SCROLL_DISPLACEMENT)
-        if y == 0: return
+            y = max(y, (self._start_coords[1] + self._size[1] - self._elements[-1]._start_coords[1] - self.elements_height) // self.SCROLL_DISPLACEMENT)
+        x = self.wheel_move[0]
+        if x >= 0:
+            x = min(x, (self._start_coords[0] - self._elements[0]._start_coords[0]) // self.SCROLL_DISPLACEMENT)
+        if x <= 0:
+            x = max(x, (self._start_coords[0] + self._size[0] - self._elements[0]._start_coords[0] - self.max_child_size) // self.SCROLL_DISPLACEMENT)
+        if x == 0 and y == 0: return
         for element in self._elements:
-            element._first_coords = (element._first_coords[0], element._first_coords[1] + self.SCROLL_DISPLACEMENT * y)
+            element._first_coords = (element._first_coords[0] + self.SCROLL_DISPLACEMENT * x, element._first_coords[1] + self.SCROLL_DISPLACEMENT * y)
         self.update_element()
         self._ui_manager.ask_refresh()
 
     def update(self) -> None:
-        if self.wheel_move[1] != 0:
+        if self.wheel_move[0] != 0 or self.wheel_move[1] != 0:
             self.scroll_elements()
         super().update()
