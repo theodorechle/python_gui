@@ -14,7 +14,7 @@ class ItemList(UIElement):
         self._elements: list[Button] = []
         super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
         self.child_focused: Button|None = None
-        self.childs_classes_names = childs_classes_names
+        self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.max_child_size = 0
     
     def add_element(self, text: str) -> None:
@@ -56,6 +56,24 @@ class ItemList(UIElement):
         self._ui_manager.ask_refresh()
         self.update_element()
     
+    def remove_element(self, element: UIElement) -> None:
+        try:
+            for class_name in self.childs_classes_names:
+                try:
+                    element.classes_names.remove(class_name)
+                except ValueError:
+                    pass
+            index = self._elements.index(element)
+            element.parent = None
+            self._elements.remove(element)
+            for i in range(index, len(self._elements)):
+                self._elements[i]._first_coords = self._elements[i]._first_coords[0], self._elements[i]._first_coords[1] - self.elements_height
+            self._ui_manager.remove_element(element)
+            self.update_element()
+            self._ui_manager.ask_refresh()
+        except ValueError:
+            pass
+
     def set_focus_on_child(self, element: UIElement) -> None:
         if self.child_focused is not None:
             self.child_focused.set_focus(False)

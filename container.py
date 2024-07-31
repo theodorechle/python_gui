@@ -24,6 +24,7 @@ class Container(UIElement):
                     element.classes_names.remove(class_name)
                 except ValueError:
                     pass
+            element.parent = None
             self._elements.remove(element)
             self._ui_manager.remove_element(element)
             self.update_element()
