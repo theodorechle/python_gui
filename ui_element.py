@@ -51,6 +51,7 @@ class UIElement(UIElementInterface):
         self.can_have_focus = False
         self.focus = False
         self.clear = False
+        self.fill_parent = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
         self.update_element()
@@ -145,6 +146,8 @@ class UIElement(UIElementInterface):
             width = content_width
         if self._relative_height:
             height = content_height
+        if self.fill_parent: # not complete implementation
+            width = max(width, self.parent._size[0])
         self._size = (width, height)
 
     def get_content_size(self) -> tuple[int, int]:

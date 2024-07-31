@@ -17,37 +17,49 @@ class ItemList(UIElement):
         self.childs_classes_names = childs_classes_names
     
     def add_element(self, text: str) -> None:
+        if self._relative_width:
+            width = None
+        else:
+            width = self._size[0]
         self._elements.append(Button(
             self._ui_manager,
             text,
             on_click_function=self.set_focus_on_child,
             y=len(self._elements) * self.elements_height,
-            width=self._size[0],
+            width=width,
             height=self.elements_height,
             classes_names=self.childs_classes_names,
             parent=self
             )
         )
         self._elements[-1].can_have_focus = True
-        self._elements[-1].update_size()
+        self._elements[-1].fill_parent = True
+        if self._relative_width:
+            self._size = (max(self._size[0], self._elements[-1]._size[0]), self._size[1])
         self._ui_manager.ask_refresh()
         self.update_element()
     
     def add_elements(self, texts: list[str]) -> None:
         for text in texts:
+            if self._relative_width:
+                width = None
+            else:
+                width = self._size[0]
             self._elements.append(Button(
                 self._ui_manager,
                 text,
                 on_click_function=self.set_focus_on_child,
                 y=len(self._elements) * self.elements_height,
-                width=self._size[0],
+                width=width,
                 height=self.elements_height,
                 classes_names=self.childs_classes_names,
                 parent=self
                 )
             )
             self._elements[-1].can_have_focus = True
-            self._elements[-1].update_size()
+            self._elements[-1].fill_parent = True
+            if self._relative_width:
+                self._size = (max(self._size[0], self._elements[-1]._size[0]), self._size[1])
         self._ui_manager.ask_refresh()
         self.update_element()
     
@@ -93,9 +105,7 @@ class ItemList(UIElement):
         if y == 0: return
         for element in self._elements:
             element._first_coords = (element._first_coords[0], element._first_coords[1] + self.SCROLL_DISPLACEMENT * y)
-            element.update_start_coords()
-            element.update_size()
-            element.update_element()
+        self.update_element()
         self._ui_manager.ask_refresh()
 
     def update(self) -> None:
