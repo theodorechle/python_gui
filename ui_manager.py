@@ -18,9 +18,9 @@ class UIManager(UIManagerInterface):
         self._elements_to_display: list[UIElementInterface] = []
         self._refresh_all = False
         self._focused_element: UIElementInterface|None = None
-        self._clicked_elements: list[UIElementInterface] = []
-        self._unclicked_elements: list[UIElementInterface] = []
-        self._hovered_elements: list[UIElementInterface] = []
+        self._clicked_elements: set[UIElementInterface] = set()
+        self._unclicked_elements: set[UIElementInterface] = set()
+        self._hovered_elements: set[UIElementInterface] = set()
         self._theme = self.get_theme(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_theme.json'))
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file or file is not valid json")
@@ -68,15 +68,27 @@ class UIManager(UIManagerInterface):
         self.ask_refresh()
     
     def remove_element(self, element: UIElementInterface) -> None:
-        try:
+        if element in self._elements:
             self._elements.remove(element)
-            self.ask_refresh()
-        except ValueError:
-            pass
+        if element in self._elements_to_display:
+            self._elements_to_display.remove(element)
+        if element in self._clicked_elements:
+            self._clicked_elements.remove(element)
+        if element in self._unclicked_elements:
+            self._unclicked_elements.remove(element)
+        if element in self._hovered_elements:
+            self._hovered_elements.remove(element)
+        if self._focused_element == element:
+            self._focused_element = None
+        self.ask_refresh()
 
-    def clear_elements_list(self) -> None:
+    def delete_all_elements(self) -> None:
         self._elements.clear()
         self._elements_to_display.clear()
+        self._clicked_elements.clear()
+        self._unclicked_elements.clear()
+        self._hovered_elements.clear()
+        self.set_focus(None)
         self.ask_refresh()
 
     def ask_refresh(self, element: UIElementInterface|list[UIElementInterface]|None=None) -> None:
@@ -138,20 +150,24 @@ class UIManager(UIManagerInterface):
             elements = self.get_hovered_element()
             for element in elements:
                 element.set_clicked(True)
-                self._clicked_elements.append(element)
+                self._clicked_elements.add(element)
                 pygame.event.post(pygame.event.Event(ELEMENT_CLICKED, dict={'element': element}))
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
             elements = self.get_hovered_element()
             is_focused = False
-            for element in elements:
+            for element in self._clicked_elements:
+                element.set_clicked(False)
                 element.set_unclicked(True)
-                self._unclicked_elements.append(element)
-                if not is_focused and element.can_have_focus:
+                pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
+            self._unclicked_elements = self._unclicked_elements.union(self._clicked_elements)
+            self._clicked_elements.clear()
+            for element in elements:
+                if not is_focused and element.is_focusable():
                     is_focused = True
                     if self.get_focus() != element:
                         self.set_focus(element)
-                pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
+                    break
             if not is_focused:
                 self.set_focus(None)
         elif event.type == pygame.MOUSEWHEEL:
@@ -167,18 +183,23 @@ class UIManager(UIManagerInterface):
 
 
     def update(self) -> None:
-        """Refresh the window if needed and creates events (click, hover)"""
+        """
+        Set for elements if they are hovered or not.
+        Re-display elements who need it.
+        Call the update method on all the elements.
+        Set unclicked to False for each unclicked elements.
+        """
+        for element in self._hovered_elements:
+            element.set_hovered(False)
+        self._hovered_elements.clear()
         elements = self.get_hovered_element()
         for element in elements:
             element.set_hovered(True)
-            self._hovered_elements.append(element)
+            self._hovered_elements.add(element)
             pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
         for element in self._elements:
             element.update()
         self.display()
-        for element in self._hovered_elements:
-            element.set_hovered(False)
-        for element in self._clicked_elements:
-            element.set_clicked(False)
         for element in self._unclicked_elements:
             element.set_unclicked(False)
+        self._unclicked_elements.clear()

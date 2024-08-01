@@ -66,6 +66,8 @@ class ItemList(UIElement):
             index = self._elements.index(element)
             element.parent = None
             self._elements.remove(element)
+            if self.child_selected == element:
+                self.child_selected = None
             for i in range(index, len(self._elements)):
                 self._elements[i]._first_coords = self._elements[i]._first_coords[0], self._elements[i]._first_coords[1] - self.elements_height
             self._ui_manager.remove_element(element)

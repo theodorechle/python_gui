@@ -196,6 +196,9 @@ class UIElement(UIElementInterface):
         if self.get_theme_value('hovered-border-color') is not None:
             self._ui_manager.ask_refresh(self)
 
+    def is_focusable(self) -> bool:
+        return self.can_have_focus
+
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
         if self._visible:

@@ -70,6 +70,22 @@ class UIElementInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def set_clicked(self, clicked: bool) -> None:
+        pass
+
+    @abstractmethod
+    def set_unclicked(self, unclicked: bool) -> None:
+        pass
+
+    @abstractmethod
+    def set_hovered(self, hovered: bool) -> None:
+        pass
+
+    @abstractmethod
+    def is_focusable(self) -> bool:
+        pass
+
+    @abstractmethod
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
 

@@ -36,7 +36,7 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def clear_elements_list(self) -> None:
+    def delete_all_elements(self) -> None:
         pass
 
     @abstractmethod
