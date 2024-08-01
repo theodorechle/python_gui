@@ -44,7 +44,7 @@ class Slider(UIElement):
     
     def update(self) -> None:
         super().update()
-        if self.was_clicked:
+        if self.clicked:
             self.set_value_with_mouse_pos()
 
     def set_value_with_mouse_pos(self) -> None:

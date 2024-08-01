@@ -66,6 +66,10 @@ class UIElementInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def set_selected(self, selected: bool) -> None:
+        pass
+
+    @abstractmethod
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
 

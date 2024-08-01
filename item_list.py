@@ -13,7 +13,7 @@ class ItemList(UIElement):
         self.elements_height = elements_height if elements_height is not None else self.DEFAULT_ELEMENT_HEIGHT
         self._elements: list[Button] = []
         super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
-        self.child_focused: Button|None = None
+        self.child_selected: Button|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.max_child_size = 0
     
@@ -21,7 +21,7 @@ class ItemList(UIElement):
         self._elements.append(Button(
             self._ui_manager,
             text,
-            on_click_function=self.set_focus_on_child,
+            on_click_function=self.set_selected_child,
             y=len(self._elements) * self.elements_height,
             height=self.elements_height,
             classes_names=self.childs_classes_names,
@@ -41,7 +41,7 @@ class ItemList(UIElement):
             self._elements.append(Button(
                 self._ui_manager,
                 text,
-                on_click_function=self.set_focus_on_child,
+                on_click_function=self.set_selected_child,
                 y=len(self._elements) * self.elements_height,
                 height=self.elements_height,
                 classes_names=self.childs_classes_names,
@@ -74,16 +74,16 @@ class ItemList(UIElement):
         except ValueError:
             pass
 
-    def set_focus_on_child(self, element: UIElement) -> None:
-        if self.child_focused is not None:
-            self.child_focused.set_focus(False)
-        self.child_focused = element
-        self.child_focused.set_focus(True)
+    def set_selected_child(self, element: UIElement) -> None:
+        if self.child_selected is not None:
+            self.child_selected.set_selected(False)
+        self.child_selected = element
+        self.child_selected.set_selected(True)
 
     def get_focused_value(self) -> str|None:
-        if self.child_focused is None:
+        if self.child_selected is None:
             return
-        return self.child_focused.get_text()
+        return self.child_selected.get_text()
 
     def get_content_size(self) -> tuple[int, int]:
         width = self._size[0] - 2*self.border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH

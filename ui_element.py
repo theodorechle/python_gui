@@ -43,13 +43,12 @@ class UIElement(UIElementInterface):
         self.parent = parent
         self._visible = visible
         self.hovered = False
-        self.was_hovered = False
         self.clicked = False
-        self.was_clicked = False
         self.unclicked = False
         self.wheel_move = (0, 0)
         self.can_have_focus = False
         self.focus = False
+        self.selected = False
         self.clear = False
         self.fill_parent = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else classes_names
@@ -177,6 +176,26 @@ class UIElement(UIElementInterface):
             self.focus = focus
         return self.focus
 
+    def set_selected(self, selected: bool) -> None:
+        self.selected = selected
+        if self.get_theme_value('selected-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
+    def set_clicked(self, clicked: bool) -> None:
+        self.clicked = clicked
+        if self.get_theme_value('clicked-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
+    def set_unclicked(self, unclicked: bool) -> None:
+        self.unclicked = unclicked
+        if self.get_theme_value('unclicked-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
+    def set_hovered(self, hovered: bool) -> None:
+        self.hovered = hovered
+        if self.get_theme_value('hovered-border-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
         if self._visible:
@@ -196,29 +215,6 @@ class UIElement(UIElementInterface):
         """
         if self.focus and self.get_theme_value('focused-border-color') is not None:
             self._ui_manager.ask_refresh(self)
-        if self.was_clicked and not self.hovered:
-            self.was_clicked = False
-            self._ui_manager.ask_refresh(self)
-        if self.was_hovered and not self.hovered:
-            self.was_hovered = False
-            if self.get_theme_value('hovered-border-color') is not None:
-                self._ui_manager.ask_refresh(self)
-        if self.hovered:
-            self.was_hovered = True
-            if self.get_theme_value('hovered-border-color') is not None:
-                self._ui_manager.ask_refresh(self)
-        self.hovered = False
-        if self.unclicked and self.was_clicked:
-            self.was_clicked = False
-            self._ui_manager.ask_refresh(self)
-            if self.get_theme_value('clicked-border-color') is not None:
-                self._ui_manager.ask_refresh(self)
-        if self.clicked:
-            self.was_clicked = True
-            if self.get_theme_value('clicked-border-color') is not None:
-                self._ui_manager.ask_refresh(self)
-        self.clicked = False
-        self.unclicked = False
         self.wheel_move = (0, 0)
         self.clear = False
         
@@ -229,10 +225,12 @@ class UIElement(UIElementInterface):
         border_color = None
         if self.focus:
             border_color = self.get_theme_value('focused-border-color')
-        if border_color is None and self.was_clicked:
+        if border_color is None and self.clicked:
             border_color = self.get_theme_value('clicked-border-color')
-        if border_color is None and self.was_hovered:
+        if border_color is None and self.hovered:
             border_color = self.get_theme_value('hovered-border-color')
+        if border_color is None and self.selected:
+            border_color = self.get_theme_value('selected-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
         start_x, start_y = self._start_coords

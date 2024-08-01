@@ -18,6 +18,9 @@ class UIManager(UIManagerInterface):
         self._elements_to_display: list[UIElementInterface] = []
         self._refresh_all = False
         self._focused_element: UIElementInterface|None = None
+        self._clicked_elements: list[UIElementInterface] = []
+        self._unclicked_elements: list[UIElementInterface] = []
+        self._hovered_elements: list[UIElementInterface] = []
         self._theme = self.get_theme(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_theme.json'))
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file or file is not valid json")
@@ -134,14 +137,16 @@ class UIManager(UIManagerInterface):
             if event.button in (4, 5): return # wheel
             elements = self.get_hovered_element()
             for element in elements:
-                element.clicked = True
+                element.set_clicked(True)
+                self._clicked_elements.append(element)
                 pygame.event.post(pygame.event.Event(ELEMENT_CLICKED, dict={'element': element}))
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
             elements = self.get_hovered_element()
             is_focused = False
             for element in elements:
-                element.unclicked = True
+                element.set_unclicked(True)
+                self._unclicked_elements.append(element)
                 if not is_focused and element.can_have_focus:
                     is_focused = True
                     if self.get_focus() != element:
@@ -163,11 +168,17 @@ class UIManager(UIManagerInterface):
 
     def update(self) -> None:
         """Refresh the window if needed and creates events (click, hover)"""
-
         elements = self.get_hovered_element()
         for element in elements:
-            element.hovered = True
+            element.set_hovered(True)
+            self._hovered_elements.append(element)
             pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
-        self.display()
         for element in self._elements:
             element.update()
+        self.display()
+        for element in self._hovered_elements:
+            element.set_hovered(False)
+        for element in self._clicked_elements:
+            element.set_clicked(False)
+        for element in self._unclicked_elements:
+            element.set_unclicked(False)

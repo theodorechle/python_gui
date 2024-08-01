@@ -64,10 +64,12 @@ class Label(UIElement):
         text_color = None
         if self.focus:
             text_color = self.get_theme_value('focused-text-color')
-        if text_color is None and self.was_clicked:
+        if text_color is None and self.clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        if text_color is None and self.was_hovered:
+        if text_color is None and self.hovered:
             text_color = self.get_theme_value('hovered-text-color')
+        if text_color is None and self.selected:
+            text_color = self.get_theme_value('selected-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
         text_size = self.get_text_size()
@@ -114,10 +116,24 @@ class Label(UIElement):
         return self._text
 
     def update(self) -> None:
-        if self.focus and self.get_theme_value('focused-text-color') is not None:
-            self._ui_manager.ask_refresh(self)
         super().update()
-        if self.was_clicked and self.get_theme_value('clicked-text-color') is not None:
+    
+    def set_selected(self, selected: bool) -> None:
+        super().set_selected(selected)
+        if self.get_theme_value('selected-text-color') is not None:
             self._ui_manager.ask_refresh(self)
-        elif self.was_hovered and self.get_theme_value('hovered-text-color') is not None:
+
+    def set_clicked(self, clicked: bool) -> None:
+        super().set_clicked(clicked)
+        if self.get_theme_value('clicked-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
+    def set_unclicked(self, unclicked: bool) -> None:
+        super().set_unclicked(unclicked)
+        if self.get_theme_value('unclicked-text-color') is not None:
+            self._ui_manager.ask_refresh(self)
+
+    def set_hovered(self, hovered: bool) -> None:
+        super().set_hovered(hovered)
+        if self.get_theme_value('hovered-text-color') is not None:
             self._ui_manager.ask_refresh(self)
