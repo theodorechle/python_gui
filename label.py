@@ -87,9 +87,9 @@ class Label(UIElement):
                 text = text[1:]
                 start_x += char_length
                 text_size = text_size[0] - char_length, text_size[1]
-            while text and start_x + text_size[0] >= self.parent._start_coords[0] + self.parent._size[0] - self.parent.border_width * 3:
-                text_size = self._font.size(text[1:])
+            while text and start_x + text_size[0] > self.parent._start_coords[0] + self.parent._size[0] - self.parent.border_width * 2:
                 text = text[:-1]
+                text_size = self._font.size(text)
 
         self._ui_manager.get_window().blit(self._font
                     .render(text,
