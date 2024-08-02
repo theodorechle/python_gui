@@ -182,13 +182,15 @@ class UIManager(UIManagerInterface):
             self._focused_element.process_event(event)
 
 
-    def update(self) -> None:
+    def update(self) -> bool:
         """
         Set for elements if they are hovered or not.
         Re-display elements who need it.
         Call the update method on all the elements.
         Set unclicked to False for each unclicked elements.
         """
+        need_screen_update = self._refresh_all or len(self._elements_to_display) == 0
+
         for element in self._hovered_elements:
             element.set_hovered(False)
         self._hovered_elements.clear()
@@ -203,3 +205,4 @@ class UIManager(UIManagerInterface):
         for element in self._unclicked_elements:
             element.set_unclicked(False)
         self._unclicked_elements.clear()
+        return need_screen_update

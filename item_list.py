@@ -1,12 +1,13 @@
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 from button import Button
+from typing import Callable
 
 class ItemList(UIElement):
     DEFAULT_ELEMENT_HEIGHT = 50
     DEFAULT_ELEMENT_LENGTH = 100
     SCROLL_DISPLACEMENT = 10
-    def __init__(self, ui_manager: UIManagerInterface, elements_height: int|None=None, x: int | str = 0, y: int | str = 0, width: int | str | None = None, height: int | str | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, classes_names: list[str] | None = None, childs_classes_names: list[str]|None=None) -> None:
+    def __init__(self, ui_manager: UIManagerInterface, elements_height: int|None=None, x: int | str = 0, y: int | str = 0, width: int | str | None = None, height: int | str | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, classes_names: list[str] | None = None, childs_classes_names: list[str]|None=None, on_select_function: Callable[["Button"], None]|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('item-list')
@@ -16,6 +17,7 @@ class ItemList(UIElement):
         self.child_selected: Button|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.max_child_size = 0
+        self.on_select_function = on_select_function
     
     def add_element(self, text: str) -> None:
         self._elements.append(Button(
@@ -76,11 +78,31 @@ class ItemList(UIElement):
         except ValueError:
             pass
 
+    def remove_all_elements(self) -> None:
+        for element in self._elements:
+            try:
+                for class_name in self.childs_classes_names:
+                    try:
+                        element.classes_names.remove(class_name)
+                    except ValueError:
+                        pass
+                element.parent = None
+                if self.child_selected == element:
+                    self.child_selected = None
+                self._ui_manager.remove_element(element)
+            except ValueError:
+                pass
+        self._elements.clear()
+        self.update_element()
+        self._ui_manager.ask_refresh()
+
     def set_selected_child(self, element: UIElement) -> None:
         if self.child_selected is not None:
             self.child_selected.set_selected(False)
         self.child_selected = element
         self.child_selected.set_selected(True)
+        if self.on_select_function is not None:
+            self.on_select_function(self.child_selected)
 
     def get_focused_value(self) -> str|None:
         if self.child_selected is None:
