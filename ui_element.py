@@ -5,7 +5,19 @@ from ui_element_interface import UIElementInterface
 from typing import Any
 
 class UIElement(UIElementInterface):
-    def __init__(self, ui_manager: UIManagerInterface, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: "UIElement|None"=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
+    def __init__(
+            self,
+            ui_manager: UIManagerInterface,
+            x: int|str=0,
+            y: int|str=0,
+            width: int|str|None=None,
+            height: int|str|None=None,
+            anchor: str='top-left',
+            visible: bool=True,
+            parent: "UIElement|None"=None,
+            theme_elements_name: list[str]|None=None,
+            classes_names: list[str]|None=None,
+            background_image_path: str|None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
@@ -18,7 +30,7 @@ class UIElement(UIElementInterface):
             Default is top-left
         - visible: Whether the element should be displayed or not
         - theme_elements_name: a list of the themes' names of the subclasses
-
+        - if provided, the element will try to set the image at the given path as background image, replacing the background color
         Note:
             x, y, width and height can be strings, in which case they will be considered as a percentage of the screen size.
             They must be valid integers, and can be followed by an optional '%'.
@@ -27,7 +39,7 @@ class UIElement(UIElementInterface):
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
         self._theme: dict[str, dict[str, Any]] = {}
-        self.border_width: int = 0
+        self._border_width: int = 0
         self._ui_manager: UIManagerInterface = ui_manager
         self._first_coords: tuple[int|str, int|str] = x, y
         self._start_coords: tuple[int|str, int|str] = x, y
@@ -42,18 +54,31 @@ class UIElement(UIElementInterface):
         self.anchor = anchor
         self.parent = parent
         self._visible = visible
-        self.hovered = False
-        self.clicked = False
-        self.unclicked = False
+        self._hovered = False
+        self._clicked = False
+        self._unclicked = False
         self.wheel_move = (0, 0)
-        self.can_have_focus = False
-        self.focus = False
-        self.selected = False
+        self._can_have_focus = False
+        self._focus = False
+        self._selected = False
         self.clear = False
+        self.is_new_element = True
         self.fill_parent = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
         self.update_element()
+        self.background_image: pygame.Surface|None = None
+        if background_image_path is not None:
+            try:
+                self.background_image = pygame.image.load(background_image_path)
+            except FileNotFoundError:
+                pass
+        self.scaled_background_image: pygame.Surface|None = None
+        self._resize_background_image()
+
+    def _resize_background_image(self) -> None:
+        if self.background_image is not None:
+            self.scaled_background_image = pygame.transform.scale(self.background_image, self.get_size())
 
     def update_element(self) -> None:
         self.update_size()
@@ -69,7 +94,7 @@ class UIElement(UIElementInterface):
         for name in self.classes_names:
             if f':{name}' in theme_dict:
                 self._theme.update(theme_dict[f':{name}'])
-        self.border_width = max(0, self.get_theme_value('border-width'))
+        self._border_width = max(0, self.get_theme_value('border-width'))
 
     def get_start_coords(self) -> tuple[int, int]:
         return self._start_coords
@@ -139,8 +164,8 @@ class UIElement(UIElementInterface):
             height = self.get_relative_height(height)
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
-            content_width += 2*self.border_width
-            content_height += 2*self.border_width
+            content_width += 2*self._border_width
+            content_height += 2*self._border_width
         if self._relative_width:
             width = content_width
         if self._relative_height:
@@ -172,32 +197,32 @@ class UIElement(UIElementInterface):
         return self._visible
 
     def set_focus(self, focus: bool) -> bool:
-        if self.can_have_focus:
-            self.focus = focus
-        return self.focus
+        if self._can_have_focus:
+            self._focus = focus
+        return self._focus
 
     def set_selected(self, selected: bool) -> None:
-        self.selected = selected
+        self._selected = selected
         if self.get_theme_value('selected-border-color') is not None:
             self._ui_manager.ask_refresh(self)
 
     def set_clicked(self, clicked: bool) -> None:
-        self.clicked = clicked
+        self._clicked = clicked
         if self.get_theme_value('clicked-border-color') is not None:
             self._ui_manager.ask_refresh(self)
 
     def set_unclicked(self, unclicked: bool) -> None:
-        self.unclicked = unclicked
+        self._unclicked = unclicked
         if self.get_theme_value('unclicked-border-color') is not None:
             self._ui_manager.ask_refresh(self)
 
     def set_hovered(self, hovered: bool) -> None:
-        self.hovered = hovered
+        self._hovered = hovered
         if self.get_theme_value('hovered-border-color') is not None:
             self._ui_manager.ask_refresh(self)
 
     def is_focusable(self) -> bool:
-        return self.can_have_focus
+        return self._can_have_focus
 
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
@@ -216,7 +241,7 @@ class UIElement(UIElementInterface):
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
-        if self.focus and self.get_theme_value('focused-border-color') is not None:
+        if self._focus and self.get_theme_value('focused-border-color') is not None:
             self._ui_manager.ask_refresh(self)
         self.wheel_move = (0, 0)
         self.clear = False
@@ -226,13 +251,13 @@ class UIElement(UIElementInterface):
 
     def display_borders(self) -> None:
         border_color = None
-        if self.focus:
+        if self._focus:
             border_color = self.get_theme_value('focused-border-color')
-        if border_color is None and self.clicked:
+        if border_color is None and self._clicked:
             border_color = self.get_theme_value('clicked-border-color')
-        if border_color is None and self.hovered:
+        if border_color is None and self._hovered:
             border_color = self.get_theme_value('hovered-border-color')
-        if border_color is None and self.selected:
+        if border_color is None and self._selected:
             border_color = self.get_theme_value('selected-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
@@ -256,8 +281,12 @@ class UIElement(UIElementInterface):
             
             start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
             start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])
-        if self.clear:
-            self._ui_manager.get_window().fill("#000000", (start_x, start_y, length, height))
+        if self.clear or self.is_new_element:
+            self.is_new_element = False
+            if self.scaled_background_image is not None:
+                self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
+            else:
+                self._ui_manager.get_window().fill(self.get_theme_value('background-color'), (start_x, start_y, length, height))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,

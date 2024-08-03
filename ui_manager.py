@@ -12,7 +12,7 @@ ELEMENT_UNCLICKED = pygame.event.custom_type()
 ELEMENT_WHEEL_MOVED = pygame.event.custom_type()
 
 class UIManager(UIManagerInterface):
-    def __init__(self, window: pygame.Surface) -> None:
+    def __init__(self, window: pygame.Surface, window_background_image_path: str|None=None) -> None:
         self.window: pygame.Surface = window
         self._elements: list[UIElementInterface] = []
         self._elements_to_display: list[UIElementInterface] = []
@@ -24,6 +24,18 @@ class UIManager(UIManagerInterface):
         self._theme = self.get_theme(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_theme.json'))
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file or file is not valid json")
+        self.background_image = None
+        if window_background_image_path is not None:
+            try:
+                self.background_image = pygame.image.load(window_background_image_path)
+            except FileNotFoundError:
+                pass
+        self.scaled_background_image: pygame.Surface|None = None
+        self._resize_background_image()
+
+    def _resize_background_image(self) -> None:
+        if self.background_image is not None:
+            self.scaled_background_image = pygame.transform.scale(self.background_image, self.get_window_size())
 
     def get_theme(self, path: str) -> dict[str, Any]:
         try:
@@ -112,7 +124,10 @@ class UIManager(UIManagerInterface):
 
     def display(self) -> None:
         if self._refresh_all:
-            self.window.fill("#000000")
+            if self.background_image is not None:
+                self.window.blit(self.scaled_background_image, (0, 0))
+            else:
+                self.window.fill(self._theme['window']['background-color'])
             elements = self._elements
         else:
             elements = self._elements_to_display
@@ -151,7 +166,6 @@ class UIManager(UIManagerInterface):
             for element in elements:
                 element.set_clicked(True)
                 self._clicked_elements.add(element)
-                pygame.event.post(pygame.event.Event(ELEMENT_CLICKED, dict={'element': element}))
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
             elements = self.get_hovered_element()
@@ -159,7 +173,6 @@ class UIManager(UIManagerInterface):
             for element in self._clicked_elements:
                 element.set_clicked(False)
                 element.set_unclicked(True)
-                pygame.event.post(pygame.event.Event(ELEMENT_UNCLICKED, dict={'element': element}))
             self._unclicked_elements = self._unclicked_elements.union(self._clicked_elements)
             self._clicked_elements.clear()
             for element in elements:
@@ -177,7 +190,6 @@ class UIManager(UIManagerInterface):
             elements = self.get_hovered_element()
             for element in elements:
                 element.wheel_move = x, y
-                pygame.event.post(pygame.event.Event(ELEMENT_WHEEL_MOVED, dict={'element': element}))
         elif self._focused_element is not None:
             self._focused_element.process_event(event)
 
@@ -198,7 +210,6 @@ class UIManager(UIManagerInterface):
         for element in elements:
             element.set_hovered(True)
             self._hovered_elements.add(element)
-            pygame.event.post(pygame.event.Event(ELEMENT_HOVERED, dict={'element': element}))
         for element in self._elements:
             element.update()
         self.display()

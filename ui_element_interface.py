@@ -5,6 +5,9 @@ from pygame.event import Event
 from pygame import Rect
 
 class UIElementInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def _resize_background_image(self) -> None:
+        pass
 
     @abstractmethod
     def update_element(self) -> None:

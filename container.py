@@ -2,12 +2,37 @@ from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 
 class Container(UIElement):
-    def __init__(self, ui_manager: UIManagerInterface, x: int = 0, y: int = 0, width: int | None = None, height: int | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, classes_names: list[str]|None=None, childs_classes_names: list[str]|None=None) -> None:
+    def __init__(
+            self,
+            ui_manager: UIManagerInterface,
+            x: int = 0,
+            y: int = 0,
+            width: int | None = None,
+            height: int | None = None,
+            anchor: str = 'top-left',
+            visible: bool = True,
+            parent: UIElement | None = None,
+            theme_elements_name: list[str] | None = None,
+            classes_names: list[str]|None=None,
+            childs_classes_names: list[str]|None=None,
+            background_image_path: str|None=None) -> None:
         """
         To apply a theme on the list childs, use {containerclassname}-childs
         """
         self._elements: list[UIElement] = []
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
+        super().__init__(
+            ui_manager,
+            x,
+            y,
+            width,
+            height,
+            anchor,
+            visible,
+            parent,
+            theme_elements_name,
+            classes_names,
+            background_image_path
+        )
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
     
     def add_element(self, element: UIElement) -> None:

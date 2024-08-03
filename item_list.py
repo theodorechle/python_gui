@@ -7,17 +7,44 @@ class ItemList(UIElement):
     DEFAULT_ELEMENT_HEIGHT = 50
     DEFAULT_ELEMENT_LENGTH = 100
     SCROLL_DISPLACEMENT = 10
-    def __init__(self, ui_manager: UIManagerInterface, elements_height: int|None=None, x: int | str = 0, y: int | str = 0, width: int | str | None = None, height: int | str | None = None, anchor: str = 'top-left', visible: bool = True, parent: UIElement | None = None, theme_elements_name: list[str] | None = None, classes_names: list[str] | None = None, childs_classes_names: list[str]|None=None, on_select_function: Callable[["Button"], None]|None=None) -> None:
+    def __init__(
+            self,
+            ui_manager: UIManagerInterface,
+            elements_height: int|None=None,
+            x: int | str = 0,
+            y: int | str = 0,
+            width: int | str | None = None,
+            height: int | str | None = None,
+            anchor: str = 'top-left',
+            visible: bool = True,
+            parent: UIElement | None = None,
+            theme_elements_name: list[str] | None = None,
+            classes_names: list[str] | None = None,
+            childs_classes_names: list[str]|None=None,
+            on_select_item_function: Callable[["Button"], None]|None=None,
+            background_image_path: str|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('item-list')
         self.elements_height = elements_height if elements_height is not None else self.DEFAULT_ELEMENT_HEIGHT
         self._elements: list[Button] = []
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
+        super().__init__(
+            ui_manager,
+            x,
+            y,
+            width,
+            height,
+            anchor,
+            visible,
+            parent,
+            theme_elements_name,
+            classes_names,
+            background_image_path
+        )
         self.child_selected: Button|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.max_child_size = 0
-        self.on_select_function = on_select_function
+        self.on_select_function = on_select_item_function
     
     def add_element(self, text: str) -> None:
         self._elements.append(Button(
@@ -26,7 +53,7 @@ class ItemList(UIElement):
             on_click_function=self.set_selected_child,
             y=len(self._elements) * self.elements_height,
             height=self.elements_height,
-            classes_names=self.childs_classes_names,
+            classes_names=self.childs_classes_names.copy(),
             parent=self
             )
         )
@@ -46,7 +73,7 @@ class ItemList(UIElement):
                 on_click_function=self.set_selected_child,
                 y=len(self._elements) * self.elements_height,
                 height=self.elements_height,
-                classes_names=self.childs_classes_names,
+                classes_names=self.childs_classes_names.copy(),
                 parent=self
                 )
             )
@@ -110,10 +137,10 @@ class ItemList(UIElement):
         return self.child_selected.get_text()
 
     def get_content_size(self) -> tuple[int, int]:
-        width = self._size[0] - 2*self.border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH
+        width = self._size[0] - 2*self._border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH
         height = self.elements_height * len(self._elements)
         if height != 0:
-            height -= 2*self.border_width
+            height -= 2*self._border_width
         if not self._relative_width:
             width = min(self._size[0], width)
         if not self._relative_height:

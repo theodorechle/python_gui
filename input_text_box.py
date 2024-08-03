@@ -5,7 +5,26 @@ from label import Label
 import pygame
 
 class InputTextBox(Label):
-    def __init__(self, ui_manager: UIManagerInterface, text: str="", placeholder_text: str="", forbidden_chars: list[str]|None=None, allowed_chars: list[str]|None=None, loose_focus_on_enter: bool=False, x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, min_width: int=0, min_height: int=0, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
+    def __init__(
+            self,
+            ui_manager: UIManagerInterface,
+            text: str="",
+            placeholder_text: str="",
+            forbidden_chars: list[str]|None=None,
+            allowed_chars: list[str]|None=None,
+            loose_focus_on_enter: bool=False,
+            x: int|str=0,
+            y: int|str=0,
+            width: int|str|None=None,
+            height: int|str|None=None,
+            min_width: int=0,
+            min_height: int=0,
+            anchor: str='top-left',
+            visible: bool=True,
+            parent: UIElement|None=None,
+            theme_elements_name: list[str]|None=None,
+            classes_names: list[str]|None=None,
+            background_image_path: str|None=None) -> None:
         """
         A text box made for input usage.
         """
@@ -26,21 +45,34 @@ class InputTextBox(Label):
         self.is_placeholder_displayed = False
         self.text_displacement = 0
         self.show_caret = False
-        super().__init__(ui_manager, text, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
-        self.can_have_focus = True
+        super().__init__(
+            ui_manager,
+            text,
+            x,
+            y,
+            width,
+            height,
+            anchor,
+            visible,
+            parent,
+            theme_elements_name,
+            classes_names,
+            background_image_path
+        )
+        self._can_have_focus = True
         self.was_focused = False
         if self.parent is not None:
             self.parent.update_element()
     
     def update(self) -> None:
-        if self.was_focused and self.unclicked:
+        if self.was_focused and self._unclicked:
             self.set_caret_to_pos()
-        if self.focus and not self.was_focused:
+        if self._focus and not self.was_focused:
             self.was_focused = True
             pygame.key.start_text_input()
             pygame.key.set_text_input_rect(pygame.Rect(self.get_start_coords(), self.get_size()))
             self.set_caret_to_pos()
-        if not self.focus and self.was_focused:
+        if not self._focus and self.was_focused:
             pygame.key.stop_text_input()
             self.was_focused = False
             self.show_caret = False
@@ -51,8 +83,8 @@ class InputTextBox(Label):
         width, height = self._size
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
-            content_width += 2*self.border_width
-            content_height += 2*self.border_width
+            content_width += 2*self._border_width
+            content_height += 2*self._border_width
         if self._relative_width:
             width = content_width
             width += self._caret_width + 2
@@ -117,7 +149,7 @@ class InputTextBox(Label):
             self._ui_manager.ask_refresh(self)
             return
         px = pygame.mouse.get_pos()[0]
-        px -= self._start_coords[0] - self.border_width
+        px -= self._start_coords[0] - self._border_width
         for i in range(len(self._fit_text)):
             if self._font.size(self._fit_text[:i + 1])[0] > px:
                 self._caret_x = self.text_displacement + i
@@ -125,13 +157,13 @@ class InputTextBox(Label):
         self._ui_manager.ask_refresh(self)
 
     def get_caret_pos(self) -> None:
-        return self.border_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
+        return self._border_width + self._font.size(self._text[self.text_displacement:self._caret_x])[0] + 1
 
     def display_text(self) -> None:
         text_color = None
-        if self.clicked:
+        if self._clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        elif self.hovered:
+        elif self._hovered:
             text_color = self.get_theme_value('hovered-text-color')
         if text_color is None:
             if self.is_placeholder_displayed:
@@ -139,13 +171,13 @@ class InputTextBox(Label):
             else:
                 text_color = self.get_theme_value('text-color')
         self._ui_manager.get_window().blit(self._font
-            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self.border_width, self._start_coords[1] + self.border_width))
+            .render(self._fit_text, self.get_theme_value('antialias'), text_color), (self._start_coords[0] + self._border_width, self._start_coords[1] + self._border_width))
 
     def display_caret(self) -> None:
         x1, y1 = self.get_start_coords()
         x1 += self.get_caret_pos()
-        y2 = y1 + self.get_size()[1] - self.border_width - 2
-        y1 += self.border_width + 1
+        y2 = y1 + self.get_size()[1] - self._border_width - 2
+        y1 += self._border_width + 1
         pygame.draw.line(self._ui_manager.window, self.get_theme_value('caret-color'), (x1, y1), (x1, y2))
 
     def display(self) -> None:
@@ -158,7 +190,7 @@ class InputTextBox(Label):
         Set in 'self._fit_text' the text who can be entirely displayed with the actual size
         """
         if not self.is_placeholder_displayed and not self._relative_width:
-            while self.get_caret_pos() > self.get_size()[0] - self.border_width:
+            while self.get_caret_pos() > self.get_size()[0] - self._border_width:
                 self.text_displacement += 1
             while self._caret_x < self.text_displacement:
                 self.text_displacement -= 1
@@ -178,7 +210,7 @@ class InputTextBox(Label):
                     break
                 self._fit_text += char
         if not self._relative_height:
-            if self._font.size(self._fit_text)[1] + 2*self.border_width > self._size[1]:
+            if self._font.size(self._fit_text)[1] + 2*self._border_width > self._size[1]:
                 self._fit_text = ''
     
     def get_text(self) -> str:

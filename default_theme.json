@@ -1,4 +1,7 @@
 {
+    "window": {
+        "background-color": "#000000"
+    },
     "ui-element": {
         "border-width": 1,
         "border-color": "#bbbbbb",
@@ -6,7 +9,8 @@
         "border-top-left-radius": -1,
         "border-top-right-radius": -1,
         "border-bottom-left-radius": -1,
-        "border-bottom-right-radius": -1
+        "border-bottom-right-radius": -1,
+        "background-color": "#000000"
     },
     "label": {
         "font-name": "",

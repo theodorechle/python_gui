@@ -5,7 +5,20 @@ from ui_manager_interface import UIManagerInterface
 from pygame import font
 
 class Label(UIElement):
-    def __init__(self, ui_manager: UIManagerInterface, text: str="", x: int|str=0, y: int|str=0, width: int|str|None=None, height: int|str|None=None, anchor: str='top-left', visible: bool=True, parent: UIElement|None=None, theme_elements_name: list[str]|None=None, classes_names: list[str]|None=None) -> None:
+    def __init__(
+            self,
+            ui_manager: UIManagerInterface,
+            text: str="",
+            x: int|str=0,
+            y: int|str=0,
+            width: int|str|None=None,
+            height: int|str|None=None,
+            anchor: str='top-left',
+            visible: bool=True,
+            parent: UIElement|None=None,
+            theme_elements_name: list[str]|None=None,
+            classes_names: list[str]|None=None,
+            background_image_path: str|None=None) -> None:
         """
         A simple way to display text.
         """
@@ -15,7 +28,19 @@ class Label(UIElement):
             theme_elements_name = []
         theme_elements_name.append('label')
         self._fit_text = self._text
-        super().__init__(ui_manager, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names)
+        super().__init__(
+            ui_manager,
+            x,
+            y,
+            width,
+            height,
+            anchor,
+            visible,
+            parent,
+            theme_elements_name,
+            classes_names,
+            background_image_path
+        )
 
         self.can_have_focus = False
     
@@ -62,13 +87,13 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         text_color = None
-        if self.focus:
+        if self._focus:
             text_color = self.get_theme_value('focused-text-color')
-        if text_color is None and self.clicked:
+        if text_color is None and self._clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        if text_color is None and self.hovered:
+        if text_color is None and self._hovered:
             text_color = self.get_theme_value('hovered-text-color')
-        if text_color is None and self.selected:
+        if text_color is None and self._selected:
             text_color = self.get_theme_value('selected-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
@@ -79,17 +104,17 @@ class Label(UIElement):
         if self.get_theme_value('vertical-center'):
             start_y = self._size[1] // 2 - text_size[1] // 2
         text = self._fit_text
-        start_x += self._start_coords[0] + self.border_width
-        start_y += self._start_coords[1] + self.border_width
+        start_x += self._start_coords[0] + self._border_width
+        start_y += self._start_coords[1] + self._border_width
         if self.parent is not None:
-            if start_y < self.parent._start_coords[1] or start_y + text_size[1] > self.parent._start_coords[1] + self.parent._size[1] - self.parent.border_width:
+            if start_y < self.parent._start_coords[1] or start_y + text_size[1] > self.parent._start_coords[1] + self.parent._size[1] - self.parent._border_width:
                 return
             while text and start_x < self.parent._start_coords[0]:
                 char_length = self._font.size(text[0])[0]
                 text = text[1:]
                 start_x += char_length
                 text_size = text_size[0] - char_length, text_size[1]
-            while text and start_x + text_size[0] > self.parent._start_coords[0] + self.parent._size[0] - self.parent.border_width * 2:
+            while text and start_x + text_size[0] > self.parent._start_coords[0] + self.parent._size[0] - self.parent._border_width * 2:
                 text = text[:-1]
                 text_size = self._font.size(text)
 

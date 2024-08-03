@@ -8,6 +8,10 @@ from typing import Any
 
 class UIManagerInterface(metaclass=ABCMeta):
     @abstractmethod
+    def _resize_background_image(self) -> None:
+        pass
+
+    @abstractmethod
     def get_theme(self, path: str) -> dict[str, Any]:
         pass
 
