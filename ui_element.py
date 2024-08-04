@@ -229,10 +229,6 @@ class UIElement(UIElementInterface):
     
     def display(self) -> None:
         """Should not be called directly by external programs but using display_element method"""
-        if self.scaled_background_image is not None:
-            self._ui_manager.get_window().blit(self.scaled_background_image, self.get_surface_rect())
-        else:
-            self._ui_manager.get_window().fill(self.get_theme_value('background-color'), self.get_surface_rect())
         self.display_borders()
     
     def update(self) -> None:
@@ -279,6 +275,10 @@ class UIElement(UIElementInterface):
             
             start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
             start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])
+        if self.scaled_background_image is not None:
+            self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
+        else:
+            self._ui_manager.get_window().fill(self.get_theme_value('background-color'), (start_x, start_y, length, height))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,

@@ -4,9 +4,8 @@ from button import Button
 from typing import Callable
 
 class ItemList(UIElement):
-    DEFAULT_ELEMENT_HEIGHT = 50
-    DEFAULT_ELEMENT_LENGTH = 100
-    SCROLL_DISPLACEMENT = 10
+    _DEFAULT_ELEMENT_HEIGHT = 50
+    _SIZE_SCROLL_SHIFT = 10
     def __init__(
             self,
             ui_manager: UIManagerInterface,
@@ -26,8 +25,10 @@ class ItemList(UIElement):
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('item-list')
-        self.elements_height = elements_height if elements_height is not None else self.DEFAULT_ELEMENT_HEIGHT
+        self.elements_height = elements_height if elements_height is not None else self._DEFAULT_ELEMENT_HEIGHT
         self._elements: list[Button] = []
+        self.scroll_shift = (0, 0)
+        self.max_child_size = 0
         super().__init__(
             ui_manager,
             x,
@@ -43,7 +44,6 @@ class ItemList(UIElement):
         )
         self.child_selected: Button|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
-        self.max_child_size = 0
         self.on_select_function = on_select_item_function
     
     def add_element(self, text: str) -> None:
@@ -136,7 +136,7 @@ class ItemList(UIElement):
         return self.child_selected.get_text()
 
     def get_content_size(self) -> tuple[int, int]:
-        width = self._size[0] - 2*self._border_width if self._size[0] is not None else self.DEFAULT_ELEMENT_LENGTH
+        width = self._size[0] - 2*self._border_width if self._size[0] is not None else self._DEFAULT_ELEMENT_LENGTH
         height = self.elements_height * len(self._elements)
         if height != 0:
             height -= 2*self._border_width
@@ -162,17 +162,20 @@ class ItemList(UIElement):
     def scroll_elements(self) -> None:
         y = self.wheel_move[1]
         if y >= 0:
-            y = min(y, (self._start_coords[1] - self._elements[0]._start_coords[1]) // self.SCROLL_DISPLACEMENT)
+            y = min(y, self.scroll_shift[1])
         if y <= 0:
-            y = max(y, (self._start_coords[1] + self._size[1] - self._elements[-1]._start_coords[1] - self.elements_height) // self.SCROLL_DISPLACEMENT)
+            if self._size[1] >= self.elements_height * len(self._elements) - self.scroll_shift[1] * self._SIZE_SCROLL_SHIFT:
+                y = 0
         x = self.wheel_move[0]
         if x >= 0:
-            x = min(x, (self._start_coords[0] - self._elements[0]._start_coords[0]) // self.SCROLL_DISPLACEMENT)
+            x = min(x, self.scroll_shift[0])
         if x <= 0:
-            x = max(x, (self._start_coords[0] + self._size[0] - self._elements[0]._start_coords[0] - self.max_child_size) // self.SCROLL_DISPLACEMENT)
+            if self._size[0] >= self.max_child_size - self.scroll_shift[0] * self._SIZE_SCROLL_SHIFT:
+                x = 0
         if x == 0 and y == 0: return
+        self.scroll_shift = self.scroll_shift[0] - x, self.scroll_shift[1] - y
         for element in self._elements:
-            element._first_coords = (element._first_coords[0] + self.SCROLL_DISPLACEMENT * x, element._first_coords[1] + self.SCROLL_DISPLACEMENT * y)
+            element._first_coords = (element._first_coords[0] + self._SIZE_SCROLL_SHIFT * x, element._first_coords[1] + self._SIZE_SCROLL_SHIFT * y)
         self.update_element()
         self._ui_manager.ask_refresh()
 

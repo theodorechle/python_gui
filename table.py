@@ -4,14 +4,13 @@ from button import Button
 from typing import Callable
 
 class Table(UIElement):
-    DEFAULT_ELEMENT_HEIGHT = 50
-    DEFAULT_ELEMENT_LENGTH = 100
-    SCROLL_DISPLACEMENT = 10
+    _SIZE_SCROLL_SHIFT = 10
     def __init__(
             self,
             ui_manager: UIManagerInterface,
             nb_elements_width: int,
             nb_elements_height: int,
+            elements_width: int|None=None,
             elements_height: int|None=None,
             x: int | str = 0,
             y: int | str = 0,
@@ -27,14 +26,15 @@ class Table(UIElement):
             background_image_path: str|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
-        self.scroll_displacement = (0, 0)
+        self.scroll_shift = (0, 0)
         theme_elements_name.append('item-list')
         self.nb_elements_width = nb_elements_width
         self.nb_elements_height = nb_elements_height
-        self.elements_height = elements_height if elements_height is not None else self.DEFAULT_ELEMENT_HEIGHT
+        self.elements_width = elements_width if elements_width is not None else 0
+        self.elements_height = elements_height if elements_height is not None else 0
         self._elements: list[Button] = [None for _ in range(self.nb_elements_width * self.nb_elements_height)]
         self.max_elements_heights = [self.elements_height] * self.nb_elements_height
-        self.max_elements_widths = [0] * self.nb_elements_width
+        self.max_elements_widths = [self.elements_width] * self.nb_elements_width
         super().__init__(
             ui_manager,
             x,
@@ -63,15 +63,19 @@ class Table(UIElement):
             on_click_function=self.set_selected_child,
             x=previous_width, 
             y=previous_height,
-            height=self.elements_height,
             classes_names=self.childs_classes_names.copy(),
             parent=self
         )
         self._elements[index] = new_element
         new_element.can_have_focus = True
         self.max_elements_widths[x] = max(self.max_elements_widths[x], new_element._size[0])
+        self.max_elements_heights[y] = max(self.max_elements_heights[y], new_element._size[1])
+        new_element._relative_width = False
+        new_element._relative_height = False
         if self._relative_width:
-            self._size = (previous_width + self.max_elements_widths[y], previous_height + self.max_elements_heights[y])
+            self._size = (previous_width + self.max_elements_widths[y], self._size[1])
+        if self._relative_height:
+            self._size = (self._size[0], previous_height + self.max_elements_heights[y])
         self._ui_manager.ask_refresh()
         self.update_element()
         return True
@@ -127,32 +131,25 @@ class Table(UIElement):
         for index, element in enumerate(self._elements):
             if element is None: continue
             x, y = index % self.nb_elements_width, index // self.nb_elements_width
-            element._first_coords = (sum(self.max_elements_widths[:x]) - self.SCROLL_DISPLACEMENT * self.scroll_displacement[0], sum(self.max_elements_heights[:y]) - self.SCROLL_DISPLACEMENT * self.scroll_displacement[1])
+            element._first_coords = (sum(self.max_elements_widths[:x]) - self._SIZE_SCROLL_SHIFT * self.scroll_shift[0], sum(self.max_elements_heights[:y]) - self._SIZE_SCROLL_SHIFT * self.scroll_shift[1])
             element._first_size = self.max_elements_widths[x], self.max_elements_heights[y]
-            element._relative_width = False
             element.update_element()
-    
-    def display(self) -> None:
-        super().display()
-        for element in self._elements:
-            if element is None: continue
-            element.display()
     
     def scroll_elements(self) -> None:
         y = self.wheel_move[1]
         if y >= 0:
-            y = min(y, self.scroll_displacement[1])
+            y = min(y, self.scroll_shift[1])
         elif y < 0:
-            if self._size[1] >= sum(self.max_elements_heights) - self.scroll_displacement[1] * self.SCROLL_DISPLACEMENT:
+            if self._size[1] >= sum(self.max_elements_heights) - self.scroll_shift[1] * self._SIZE_SCROLL_SHIFT:
                 y = 0
         x = self.wheel_move[0]
         if x >= 0:
-            x = min(x, self.scroll_displacement[0])
+            x = min(x, self.scroll_shift[0])
         elif x < 0:
-            if self._size[0] >= sum(self.max_elements_widths) - self.scroll_displacement[0] * self.SCROLL_DISPLACEMENT:
+            if self._size[0] >= sum(self.max_elements_widths) - self.scroll_shift[0] * self._SIZE_SCROLL_SHIFT:
                 x = 0
         if x == 0 and y == 0: return
-        self.scroll_displacement = self.scroll_displacement[0] - x, self.scroll_displacement[1] - y
+        self.scroll_shift = self.scroll_shift[0] - x, self.scroll_shift[1] - y
         for element in self._elements:
             if element is None: continue
         self.update_element()

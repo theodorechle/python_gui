@@ -13,3 +13,5 @@ Once again, bug with the label where the last character who could appear doesn't
 Add possibility to give a Surface
 
 Modify button to inherits from container instead of label
+
+Backgrounds are displayed even if out of parent element
