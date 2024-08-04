@@ -18,6 +18,7 @@ class Button(Container):
             parent: UIElement|None=None,
             theme_elements_name: list[str]|None=None,
             classes_names: list[str]|None=None,
+            childs_classes_names: list[str]|None=None,
             background_image: str|Surface|None=None) -> None:
         """
         A button who display a text and who can be clicked.
@@ -38,6 +39,7 @@ class Button(Container):
             parent,
             theme_elements_name,
             classes_names,
+            childs_classes_names=childs_classes_names,
             background_image=background_image
         )
     

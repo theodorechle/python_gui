@@ -65,7 +65,7 @@ class UIElement(UIElementInterface):
         self._selected = False
         self.fill_parent_width = False # allow element to expand or shrink to fill in its parent
         self.fill_parent_height = False # allow element to expand or shrink to fill in its parent
-        self.classes_names = ['default'] if classes_names is None else classes_names
+        self.classes_names = ['default'] if classes_names is None else [class_name for class_name in classes_names if ':' not in class_name] # ':' is reserved for special uses
         self._ui_manager.add_element(self)
         self.update_element()
         self.background_image: pygame.Surface|None = None
@@ -88,7 +88,6 @@ class UIElement(UIElementInterface):
         self.update_start_coords()
         self.set_fit_in_parent_rect()
 
-
     def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool=False) -> None:
         """If erase is False, only the changed and added values will be set"""
         if erase:
@@ -99,6 +98,15 @@ class UIElement(UIElementInterface):
         for name in self.classes_names:
             if f':{name}' in theme_dict:
                 self._theme.update(theme_dict[f':{name}'])
+        parent = self.parent
+        while parent is not None:
+            for parent_class_name in parent.classes_names:
+                if f':{parent_class_name}:child' in theme_dict:
+                    self._theme.update(theme_dict[f':{parent_class_name}:child'])
+            for parent_theme_name in parent.theme_elements_name:
+                if f'{parent_theme_name}:child' in theme_dict:
+                    self._theme.update(theme_dict[f'{parent_theme_name}:child'])
+            parent = parent.parent
         self._border_width = max(0, self.get_theme_value('border-width'))
 
     def get_start_coords(self) -> tuple[int, int]:
@@ -216,7 +224,7 @@ class UIElement(UIElementInterface):
         return self._size
 
     def is_in_element(self, x: int, y: int) -> bool:
-        return self._start_coords[0] <= x <= self._start_coords[0] + self._size[0] and self._start_coords[1] <= y <= self._start_coords[1] + self._size[1]
+        return self.fit_in_parent_rect[0] <= x <= self.fit_in_parent_rect[0] + self.fit_in_parent_rect[2] and self.fit_in_parent_rect[1] <= y <= self.fit_in_parent_rect[1] + self.fit_in_parent_rect[3]
 
     def get_visibility(self) -> bool:
         return self._visible

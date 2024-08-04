@@ -32,6 +32,12 @@ class Container(UIElement):
             classes_names,
             background_image
         )
+        """
+        Childs elements can get a theme by using
+        ':<parent-element-class>:child'
+        or
+        '<parent-element-name>:child'
+        """
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
     
     def add_element(self, element: UIElement) -> None:

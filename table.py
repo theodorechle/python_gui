@@ -22,7 +22,8 @@ class Table(UIElement):
             parent: UIElement | None = None,
             theme_elements_name: list[str] | None = None,
             classes_names: list[str] | None = None,
-            childs_classes_names: list[str]|None=None,
+            cells_classes_names: list[str]|None=None,
+            cells_childs_classes_names: list[str]|None=None,
             on_select_item_function: Callable[[TextButton], None]|None=None,
             background_image: str|Surface|None=None) -> None:
         if theme_elements_name is None:
@@ -50,7 +51,8 @@ class Table(UIElement):
             background_image
         )
         self.child_selected: TextButton|None = None
-        self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
+        self.cells_classes_names = [] if cells_classes_names is None else cells_classes_names
+        self.cells_childs_classes_names = [] if cells_childs_classes_names is None else cells_childs_classes_names
         self.on_select_function = on_select_item_function
     
     def add_element(self, text: str, x: int, y: int) -> bool:
@@ -64,7 +66,8 @@ class Table(UIElement):
             on_click_function=self.set_selected_child,
             x=previous_width, 
             y=previous_height,
-            classes_names=self.childs_classes_names.copy(),
+            classes_names=self.cells_classes_names.copy(),
+            childs_classes_names=self.cells_childs_classes_names,
             parent=self
         )
         self._elements[index] = new_element
@@ -86,7 +89,7 @@ class Table(UIElement):
         if index < 0 or index > len(self._elements): return False
         element = self._elements[index]
         if element is None: return False
-        for class_name in self.childs_classes_names:
+        for class_name in self.cells_classes_names:
             try:
                 element.classes_names.remove(class_name)
             except ValueError:

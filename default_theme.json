@@ -22,7 +22,7 @@
         "caret-color": "#aaaaaa",
         "placeholder-color": "#888888"
     },
-    "button": {
+    "text-button:child": {
         "hovered-border-color": "#888888",
         "hovered-text-color": "#bbbbbb"
     },
