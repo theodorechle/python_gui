@@ -132,8 +132,6 @@ class UIManager(UIManagerInterface):
         else:
             elements = self._elements_to_display
         for element in elements:
-            if not self._refresh_all:
-                element.clear = True
             element.display_element()
         self._refresh_all = False
         self._elements_to_display.clear()
@@ -201,7 +199,6 @@ class UIManager(UIManagerInterface):
         Call the update method on all the elements.
         Set unclicked to False for each unclicked elements.
         """
-        need_screen_update = self._refresh_all or len(self._elements_to_display) == 0
 
         for element in self._hovered_elements:
             element.set_hovered(False)
@@ -212,6 +209,7 @@ class UIManager(UIManagerInterface):
             self._hovered_elements.add(element)
         for element in self._elements:
             element.update()
+        need_screen_update = self._refresh_all or len(self._elements_to_display) != 0
         self.display()
         for element in self._unclicked_elements:
             element.set_unclicked(False)

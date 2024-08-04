@@ -9,3 +9,7 @@ Force elements to crop if can't fit in parent element.
 Fix item list vertical scroll with elements bigger in height than the list
 
 Once again, bug with the label where the last character who could appear doesn't
+
+Add possibility to give a Surface
+
+Modify button to inherits from container instead of label

@@ -61,8 +61,6 @@ class UIElement(UIElementInterface):
         self._can_have_focus = False
         self._focus = False
         self._selected = False
-        self.clear = False
-        self.is_new_element = True
         self.fill_parent = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
@@ -231,9 +229,10 @@ class UIElement(UIElementInterface):
     
     def display(self) -> None:
         """Should not be called directly by external programs but using display_element method"""
-        background_color = self.get_theme_value('background-color')
-        if background_color is not None:
-            pygame.draw.rect(self._ui_manager.get_window(), background_color, pygame.Rect(self.get_start_coords(), self.get_size()))
+        if self.scaled_background_image is not None:
+            self._ui_manager.get_window().blit(self.scaled_background_image, self.get_surface_rect())
+        else:
+            self._ui_manager.get_window().fill(self.get_theme_value('background-color'), self.get_surface_rect())
         self.display_borders()
     
     def update(self) -> None:
@@ -244,7 +243,6 @@ class UIElement(UIElementInterface):
         if self._focus and self.get_theme_value('focused-border-color') is not None:
             self._ui_manager.ask_refresh(self)
         self.wheel_move = (0, 0)
-        self.clear = False
         
     def get_theme_value(self, variable: str) -> Any|None:
         return self._theme.get(variable)
@@ -281,12 +279,6 @@ class UIElement(UIElementInterface):
             
             start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
             start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])
-        if self.clear or self.is_new_element:
-            self.is_new_element = False
-            if self.scaled_background_image is not None:
-                self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
-            else:
-                self._ui_manager.get_window().fill(self.get_theme_value('background-color'), (start_x, start_y, length, height))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,
