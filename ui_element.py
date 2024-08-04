@@ -52,6 +52,7 @@ class UIElement(UIElementInterface):
         self._size = (width, height)
         self._relative_width = width is None
         self._relative_height = height is None
+        self.fit_in_parent_rect: pygame.Rect = pygame.Rect(0, 0, 0, 0)
         self.anchor = anchor
         self.parent = parent
         self._visible = visible
@@ -62,7 +63,8 @@ class UIElement(UIElementInterface):
         self._can_have_focus = False
         self._focus = False
         self._selected = False
-        self.fill_parent = False # allow element to expand or shrink to fill in its parent
+        self.fill_parent_width = False # allow element to expand or shrink to fill in its parent
+        self.fill_parent_height = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else classes_names
         self._ui_manager.add_element(self)
         self.update_element()
@@ -84,6 +86,8 @@ class UIElement(UIElementInterface):
     def update_element(self) -> None:
         self.update_size()
         self.update_start_coords()
+        self.set_fit_in_parent_rect()
+
 
     def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool=False) -> None:
         """If erase is False, only the changed and added values will be set"""
@@ -109,9 +113,6 @@ class UIElement(UIElementInterface):
             parent_rect = (0, 0, *self._ui_manager.get_window_size())
         else:
             parent_rect = self.parent.get_surface_rect()
-            if self.fill_parent:
-                self._start_coords = (parent_rect[0], parent_rect[1])
-                return
         if self.anchor == 'top-left':
             x = parent_rect[0]
             y = parent_rect[1]
@@ -148,6 +149,10 @@ class UIElement(UIElementInterface):
         if isinstance(add_y, str):
             add_y = self.get_relative_height(add_y)
         y += add_y
+        if self.fill_parent_width:
+            x = parent_rect[0]
+        if self.fill_parent_height:
+            y = parent_rect[1]
         self._start_coords = x, y
     
     def get_relative_width(self, width: str) -> int:
@@ -161,9 +166,6 @@ class UIElement(UIElementInterface):
         return self._ui_manager.get_window_size()[1] * int(height) // 100
 
     def update_size(self) -> None:
-        if self.fill_parent:
-            self._size = self.parent._size
-            return
         width, height = self._first_size
         if isinstance(width, str):
             width = self.get_relative_width(width)
@@ -177,7 +179,35 @@ class UIElement(UIElementInterface):
             width = content_width
         if self._relative_height:
             height = content_height
+        if self.fill_parent_width:
+            width = self.parent._size[0]
+        if self.fill_parent_height:
+            height = self.parent._size[1]
         self._size = (width, height)
+
+    def set_fit_in_parent_rect(self) -> pygame.Rect:
+        start_x, start_y = self._start_coords
+        length, height = self._size
+        if self.parent is not None:
+            parent_x, parent_y, parent_length, parent_height = self.parent.fit_in_parent_rect
+            if start_x >= parent_x:
+                length = max(min(length, parent_length - (start_x - parent_x)), 0)
+            else:
+                if length >= parent_length:
+                    length = max(min(length, parent_length), 0)
+                else:
+                    length = max(length - (parent_x - start_x), 0)
+            if start_y >= parent_y:
+                height = max(min(height, parent_height - (start_y - parent_y)), 0)
+            else:
+                if height >= parent_height:
+                    height = max(min(height, parent_height), 0)
+                else:
+                    height = max(height - (parent_y - start_y), 0)
+            
+            start_x = min(max(start_x, parent_x), parent_x + parent_length)
+            start_y = min(max(start_y, parent_y), parent_y + parent_height)
+        self.fit_in_parent_rect = pygame.Rect(start_x, start_y, length, height)
 
     def get_content_size(self) -> tuple[int, int]:
         raise NotImplementedError
@@ -262,26 +292,7 @@ class UIElement(UIElementInterface):
             border_color = self.get_theme_value('selected-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
-        start_x, start_y = self._start_coords
-        length, height = self._size
-        if self.parent is not None:
-            if start_x >= self.parent._start_coords[0]:
-                length = max(min(length, self.parent._size[0] - (self._start_coords[0] - self.parent._start_coords[0])), 0)
-            else:
-                if length >= self.parent._size[0]:
-                    length = max(min(length, self.parent._size[0]), 0)
-                else:
-                    length = max(length - (self.parent._start_coords[0] - self._start_coords[0]), 0)
-            if start_y >= self.parent._start_coords[1]:
-                height = max(min(height, self.parent._size[1] - (self._start_coords[1] - self.parent._start_coords[1])), 0)
-            else:
-                if height >= self.parent._size[1]:
-                    height = max(min(height, self.parent._size[1]), 0)
-                else:
-                    height = max(height - (self.parent._start_coords[1] - self._start_coords[1]), 0)
-            
-            start_x = min(max(start_x, self.parent._start_coords[0]), self.parent._start_coords[0] + self.parent._size[0])
-            start_y = min(max(start_y, self.parent._start_coords[1]), self.parent._start_coords[1] + self.parent._size[1])
+        start_x, start_y, length, height = self.fit_in_parent_rect
         if self.scaled_background_image is not None:
             self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
         else:

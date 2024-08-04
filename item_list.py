@@ -1,6 +1,6 @@
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
-from button import Button
+from text_button import TextButton
 from typing import Callable
 from pygame import Surface
 
@@ -21,13 +21,13 @@ class ItemList(UIElement):
             theme_elements_name: list[str] | None = None,
             classes_names: list[str] | None = None,
             childs_classes_names: list[str]|None=None,
-            on_select_item_function: Callable[["Button"], None]|None=None,
+            on_select_item_function: Callable[[TextButton], None]|None=None,
             background_image: str|Surface|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
         theme_elements_name.append('item-list')
         self.elements_height = elements_height if elements_height is not None else self._DEFAULT_ELEMENT_HEIGHT
-        self._elements: list[Button] = []
+        self._elements: list[TextButton] = []
         self.scroll_shift = (0, 0)
         self.max_child_size = 0
         super().__init__(
@@ -43,12 +43,12 @@ class ItemList(UIElement):
             classes_names,
             background_image
         )
-        self.child_selected: Button|None = None
+        self.child_selected: TextButton|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.on_select_function = on_select_item_function
     
     def add_element(self, text: str) -> None:
-        self._elements.append(Button(
+        self._elements.append(TextButton(
             self._ui_manager,
             text,
             on_click_function=self.set_selected_child,
@@ -58,8 +58,8 @@ class ItemList(UIElement):
             parent=self
             )
         )
-        self._elements[-1].can_have_focus = True
-        self._elements[-1].fill_parent = True
+        self._elements[-1]._can_have_focus = True
+        self._elements[-1].fill_parent_width = True
         self.max_child_size = max(self.max_child_size, self._elements[-1]._size[0])
         if self._relative_width:
             self._size = (self.max_child_size, self._size[1])
@@ -68,7 +68,7 @@ class ItemList(UIElement):
     
     def add_elements(self, texts: list[str]) -> None:
         for text in texts:
-            self._elements.append(Button(
+            self._elements.append(TextButton(
                 self._ui_manager,
                 text,
                 on_click_function=self.set_selected_child,
@@ -78,8 +78,8 @@ class ItemList(UIElement):
                 parent=self
                 )
             )
-            self._elements[-1].can_have_focus = True
-            self._elements[-1].fill_parent = True
+            self._elements[-1]._can_have_focus = True
+            self._elements[-1].fill_parent_width = True
             self.max_child_size = max(self.max_child_size, self._elements[-1]._size[0])
             if self._relative_width:
                 self._size = (self.max_child_size, self._size[1])

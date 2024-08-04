@@ -1,6 +1,6 @@
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
-from button import Button
+from text_button import TextButton
 from typing import Callable
 from pygame import Surface
 
@@ -23,7 +23,7 @@ class Table(UIElement):
             theme_elements_name: list[str] | None = None,
             classes_names: list[str] | None = None,
             childs_classes_names: list[str]|None=None,
-            on_select_item_function: Callable[["Button"], None]|None=None,
+            on_select_item_function: Callable[[TextButton], None]|None=None,
             background_image: str|Surface|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
@@ -33,7 +33,7 @@ class Table(UIElement):
         self.nb_elements_height = nb_elements_height
         self.elements_width = elements_width if elements_width is not None else 0
         self.elements_height = elements_height if elements_height is not None else 0
-        self._elements: list[Button] = [None for _ in range(self.nb_elements_width * self.nb_elements_height)]
+        self._elements: list[TextButton] = [None for _ in range(self.nb_elements_width * self.nb_elements_height)]
         self.max_elements_heights = [self.elements_height] * self.nb_elements_height
         self.max_elements_widths = [self.elements_width] * self.nb_elements_width
         super().__init__(
@@ -49,7 +49,7 @@ class Table(UIElement):
             classes_names,
             background_image
         )
-        self.child_selected: Button|None = None
+        self.child_selected: TextButton|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
         self.on_select_function = on_select_item_function
     
@@ -58,7 +58,7 @@ class Table(UIElement):
         if index < 0 or index > len(self._elements): return False
         previous_width = sum(self.max_elements_widths[:x])
         previous_height = sum(self.max_elements_heights[:y])
-        new_element = Button(
+        new_element = TextButton(
             self._ui_manager,
             text,
             on_click_function=self.set_selected_child,
@@ -164,4 +164,5 @@ class Table(UIElement):
     def display(self) -> None:
         super().display()
         for element in self._elements:
+            if element is None: continue
             element.display()
