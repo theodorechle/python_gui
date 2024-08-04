@@ -2,7 +2,7 @@ from typing import Any
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 
-from pygame import font
+from pygame import font, Surface
 
 class Label(UIElement):
     def __init__(
@@ -18,7 +18,7 @@ class Label(UIElement):
             parent: UIElement|None=None,
             theme_elements_name: list[str]|None=None,
             classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|Surface|None=None) -> None:
         """
         A simple way to display text.
         """
@@ -39,7 +39,7 @@ class Label(UIElement):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image
         )
 
         self.can_have_focus = False

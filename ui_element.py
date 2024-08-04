@@ -17,7 +17,7 @@ class UIElement(UIElementInterface):
             parent: "UIElement|None"=None,
             theme_elements_name: list[str]|None=None,
             classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|pygame.Surface|None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
@@ -30,7 +30,8 @@ class UIElement(UIElementInterface):
             Default is top-left
         - visible: Whether the element should be displayed or not
         - theme_elements_name: a list of the themes' names of the subclasses
-        - if provided, the element will try to set the image at the given path as background image, replacing the background color
+        - background_image: if provided, the element will try to set the image at the given path as background image, replacing the background color
+        The background image can ether be a pygame.Surface or a string path to the image
         Note:
             x, y, width and height can be strings, in which case they will be considered as a percentage of the screen size.
             They must be valid integers, and can be followed by an optional '%'.
@@ -66,11 +67,13 @@ class UIElement(UIElementInterface):
         self._ui_manager.add_element(self)
         self.update_element()
         self.background_image: pygame.Surface|None = None
-        if background_image_path is not None:
+        if isinstance(background_image, str):
             try:
-                self.background_image = pygame.image.load(background_image_path)
+                self.background_image = pygame.image.load(background_image)
             except FileNotFoundError:
                 pass
+        elif isinstance(background_image, pygame.Surface):
+            self.background_image = background_image
         self.scaled_background_image: pygame.Surface|None = None
         self._resize_background_image()
 
@@ -106,6 +109,9 @@ class UIElement(UIElementInterface):
             parent_rect = (0, 0, *self._ui_manager.get_window_size())
         else:
             parent_rect = self.parent.get_surface_rect()
+            if self.fill_parent:
+                self._start_coords = (parent_rect[0], parent_rect[1])
+                return
         if self.anchor == 'top-left':
             x = parent_rect[0]
             y = parent_rect[1]
@@ -155,6 +161,9 @@ class UIElement(UIElementInterface):
         return self._ui_manager.get_window_size()[1] * int(height) // 100
 
     def update_size(self) -> None:
+        if self.fill_parent:
+            self._size = self.parent._size
+            return
         width, height = self._first_size
         if isinstance(width, str):
             width = self.get_relative_width(width)
@@ -168,8 +177,6 @@ class UIElement(UIElementInterface):
             width = content_width
         if self._relative_height:
             height = content_height
-        if self.fill_parent: # not complete implementation
-            width = max(width, self.parent._size[0])
         self._size = (width, height)
 
     def get_content_size(self) -> tuple[int, int]:

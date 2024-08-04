@@ -12,7 +12,7 @@ ELEMENT_UNCLICKED = pygame.event.custom_type()
 ELEMENT_WHEEL_MOVED = pygame.event.custom_type()
 
 class UIManager(UIManagerInterface):
-    def __init__(self, window: pygame.Surface, window_background_image_path: str|None=None) -> None:
+    def __init__(self, window: pygame.Surface, window_background_image: str|pygame.Surface|None=None) -> None:
         self.window: pygame.Surface = window
         self._elements: list[UIElementInterface] = []
         self._elements_to_display: list[UIElementInterface] = []
@@ -25,11 +25,13 @@ class UIManager(UIManagerInterface):
         if not self._theme:
             raise FileNotFoundError("Can't find default theme file or file is not valid json")
         self.background_image = None
-        if window_background_image_path is not None:
+        if isinstance(window_background_image, str):
             try:
-                self.background_image = pygame.image.load(window_background_image_path)
+                self.background_image = pygame.image.load(window_background_image)
             except FileNotFoundError:
                 pass
+        elif isinstance(window_background_image, pygame.Surface):
+            self.background_image= window_background_image
         self.scaled_background_image: pygame.Surface|None = None
         self._resize_background_image()
 

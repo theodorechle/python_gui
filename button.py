@@ -1,14 +1,13 @@
 from ui_manager_interface import UIManagerInterface
 from ui_element import UIElement
-from label import Label
-
+from container import Container
+from pygame import Surface
 from typing import Callable
 
-class Button(Label):
+class Button(Container):
     def __init__(
             self,
             ui_manager: UIManagerInterface,
-            text: str="",
             on_click_function: Callable[["Button"], None]|None=None,
             x: int|str=0,
             y: int|str=0,
@@ -19,7 +18,7 @@ class Button(Label):
             parent: UIElement|None=None,
             theme_elements_name: list[str]|None=None,
             classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|Surface|None=None) -> None:
         """
         A button who display a text and who can be clicked.
         If 'on_click_function' is given, the function will be called on click.
@@ -30,7 +29,6 @@ class Button(Label):
         theme_elements_name.append('button')
         super().__init__(
             ui_manager,
-            text,
             x,
             y,
             width,
@@ -40,7 +38,7 @@ class Button(Label):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image=background_image
         )
     
 

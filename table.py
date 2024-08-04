@@ -2,6 +2,7 @@ from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 from button import Button
 from typing import Callable
+from pygame import Surface
 
 class Table(UIElement):
     _SIZE_SCROLL_SHIFT = 10
@@ -23,7 +24,7 @@ class Table(UIElement):
             classes_names: list[str] | None = None,
             childs_classes_names: list[str]|None=None,
             on_select_item_function: Callable[["Button"], None]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|Surface|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
         self.scroll_shift = (0, 0)
@@ -46,7 +47,7 @@ class Table(UIElement):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image
         )
         self.child_selected: Button|None = None
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
@@ -159,3 +160,8 @@ class Table(UIElement):
         if self.wheel_move[0] != 0 or self.wheel_move[1] != 0:
             self.scroll_elements()
         super().update()
+
+    def display(self) -> None:
+        super().display()
+        for element in self._elements:
+            element.display()

@@ -1,5 +1,6 @@
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
+from pygame import Surface
 
 class Container(UIElement):
     def __init__(
@@ -15,10 +16,8 @@ class Container(UIElement):
             theme_elements_name: list[str] | None = None,
             classes_names: list[str]|None=None,
             childs_classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
-        """
-        To apply a theme on the list childs, use {containerclassname}-childs
-        """
+            background_image: str|Surface|None=None) -> None:
+
         self._elements: list[UIElement] = []
         super().__init__(
             ui_manager,
@@ -31,7 +30,7 @@ class Container(UIElement):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image
         )
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
     

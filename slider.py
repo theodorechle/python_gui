@@ -21,7 +21,7 @@ class Slider(UIElement):
             parent: UIElement | None = None,
             theme_elements_name: list[str] | None = None,
             classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|pygame.Surface|None=None) -> None:
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
@@ -42,7 +42,7 @@ class Slider(UIElement):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image
         )
         self.can_have_focus = True
         self.value_x = 0

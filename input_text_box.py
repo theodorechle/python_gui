@@ -24,7 +24,7 @@ class InputTextBox(Label):
             parent: UIElement|None=None,
             theme_elements_name: list[str]|None=None,
             classes_names: list[str]|None=None,
-            background_image_path: str|None=None) -> None:
+            background_image: str|pygame.Surface|None=None) -> None:
         """
         A text box made for input usage.
         """
@@ -57,7 +57,7 @@ class InputTextBox(Label):
             parent,
             theme_elements_name,
             classes_names,
-            background_image_path
+            background_image
         )
         self._can_have_focus = True
         self.was_focused = False
