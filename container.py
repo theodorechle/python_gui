@@ -86,3 +86,8 @@ class Container(UIElement):
         super().display()
         for element in self._elements:
             element.display()
+
+    def set_selected(self, selected: bool) -> None:
+        for child in self._elements:
+            child.set_selected(selected)
+        super().set_selected(selected)

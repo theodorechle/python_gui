@@ -87,14 +87,14 @@ class Label(UIElement):
 
     def display_text(self) -> None:
         text_color = None
-        if self._focus:
-            text_color = self.get_theme_value('focused-text-color')
+        if self._hovered:
+            text_color = self.get_theme_value('hovered-text-color')
         if text_color is None and self._clicked:
             text_color = self.get_theme_value('clicked-text-color')
-        if text_color is None and self._hovered:
-            text_color = self.get_theme_value('hovered-text-color')
         if text_color is None and self._selected:
             text_color = self.get_theme_value('selected-text-color')
+        if text_color is None and self._focus:
+            text_color = self.get_theme_value('focused-text-color')
         if text_color is None:
             text_color = self.get_theme_value('text-color')
         text_size = self.get_text_size()
@@ -104,17 +104,17 @@ class Label(UIElement):
         if self.get_theme_value('vertical-center'):
             start_y = self._size[1] // 2 - text_size[1] // 2
         text = self._fit_text
-        start_x += self._start_coords[0] + self._border_width
-        start_y += self._start_coords[1] + self._border_width
+        start_x += self._start_coords[0]
+        start_y += self._start_coords[1]
         if self.parent is not None:
-            if start_y < self.parent.fit_in_parent_rect[1] or start_y + text_size[1] > self.parent.fit_in_parent_rect[1] + self.parent.fit_in_parent_rect[3] - self.parent._border_width:
+            if start_y < self.parent.fit_in_parent_rect[1] or start_y + text_size[1] > self.parent.fit_in_parent_rect[1] + self.parent.fit_in_parent_rect[3]:
                 return
             while text and start_x < self.parent.fit_in_parent_rect[0]:
                 char_length = self._font.size(text[0])[0]
                 text = text[1:]
                 start_x += char_length
                 text_size = text_size[0] - char_length, text_size[1]
-            while text and start_x + text_size[0] > self.parent.fit_in_parent_rect[0] + self.parent.fit_in_parent_rect[2] - self.parent._border_width * 2:
+            while text and start_x + text_size[0] > self.parent.fit_in_parent_rect[0] + self.parent.fit_in_parent_rect[2]:
                 text = text[:-1]
                 text_size = self._font.size(text)
 

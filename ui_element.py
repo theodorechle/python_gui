@@ -181,8 +181,6 @@ class UIElement(UIElementInterface):
             height = self.get_relative_height(height)
         if self._relative_width or self._relative_height:
             content_width, content_height = self.get_content_size()
-            content_width += 2*self._border_width
-            content_height += 2*self._border_width
         if self._relative_width:
             width = content_width
         if self._relative_height:
@@ -242,6 +240,8 @@ class UIElement(UIElementInterface):
     def set_focus(self, focus: bool) -> bool:
         if self._can_have_focus:
             self._focus = focus
+            if self._focus and self.get_theme_value('focused-border-color') is not None:
+                self._ui_manager.ask_refresh(self)
         return self._focus
 
     def set_selected(self, selected: bool) -> None:
@@ -281,8 +281,6 @@ class UIElement(UIElementInterface):
         Should be called by the subclasses to update the values linked to an event
         (hovered, clicked, ...)
         """
-        if self._focus and self.get_theme_value('focused-border-color') is not None:
-            self._ui_manager.ask_refresh(self)
         self.wheel_move = (0, 0)
         
     def get_theme_value(self, variable: str) -> Any|None:
@@ -290,14 +288,14 @@ class UIElement(UIElementInterface):
 
     def display_borders(self) -> None:
         border_color = None
-        if self._focus:
-            border_color = self.get_theme_value('focused-border-color')
+        if self._hovered:
+            border_color = self.get_theme_value('hovered-border-color')
         if border_color is None and self._clicked:
             border_color = self.get_theme_value('clicked-border-color')
-        if border_color is None and self._hovered:
-            border_color = self.get_theme_value('hovered-border-color')
         if border_color is None and self._selected:
             border_color = self.get_theme_value('selected-border-color')
+        if border_color is None and self._focus:
+            border_color = self.get_theme_value('focused-border-color')
         if border_color is None:
             border_color = self.get_theme_value('border-color')
         start_x, start_y, length, height = self.fit_in_parent_rect

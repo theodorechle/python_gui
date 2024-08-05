@@ -91,13 +91,13 @@ class ItemList(UIElement):
         self.update_element()
     
     def remove_element(self, element: UIElement) -> None:
+        index = self._elements.index(element)
+        if element not in self._elements: return False
         for class_name in self.items_classes_names:
             try:
                 element.classes_names.remove(class_name)
             except ValueError:
                 pass
-        index = self._elements.index(element)
-        if element not in self._elements: return False
         element.parent = None
         self._elements.remove(element)
         if self.child_selected == element:
@@ -106,7 +106,6 @@ class ItemList(UIElement):
             self._elements[i]._first_coords = self._elements[i]._first_coords[0], self._elements[i]._first_coords[1] - self.elements_height
         self._ui_manager.remove_element(element)
         self.update_element()
-        self._ui_manager.ask_refresh()
 
 
     def remove_all_elements(self) -> None:
