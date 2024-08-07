@@ -1,6 +1,6 @@
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
-from text_button import TextButton
+from button import Button
 from typing import Callable
 from pygame import Surface
 
@@ -24,7 +24,7 @@ class Table(UIElement):
             classes_names: list[str] | None = None,
             cells_classes_names: list[str]|None=None,
             cells_childs_classes_names: list[str]|None=None,
-            on_select_item_function: Callable[[TextButton], None]|None=None,
+            on_select_item_function: Callable[[Button], None]|None=None,
             background_image: str|Surface|None=None) -> None:
         if theme_elements_name is None:
             theme_elements_name = []
@@ -32,9 +32,9 @@ class Table(UIElement):
         theme_elements_name.append('item-list')
         self.nb_elements_width = nb_elements_width
         self.nb_elements_height = nb_elements_height
-        self.elements_width = elements_width if elements_width is not None else 0
-        self.elements_height = elements_height if elements_height is not None else 0
-        self._elements: list[TextButton] = [None for _ in range(self.nb_elements_width * self.nb_elements_height)]
+        self.elements_width = elements_width
+        self.elements_height = elements_height
+        self._elements: list[Button] = [None for _ in range(self.nb_elements_width * self.nb_elements_height)]
         self.max_elements_heights = [self.elements_height] * self.nb_elements_height
         self.max_elements_widths = [self.elements_width] * self.nb_elements_width
         super().__init__(
@@ -50,39 +50,32 @@ class Table(UIElement):
             classes_names,
             background_image
         )
-        self.child_selected: TextButton|None = None
+        self.child_selected: Button|None = None
         self.cells_classes_names = [] if cells_classes_names is None else cells_classes_names
         self.cells_childs_classes_names = [] if cells_childs_classes_names is None else cells_childs_classes_names
         self.on_select_function = on_select_item_function
     
-    def add_element(self, text: str, x: int, y: int) -> bool:
+    def add_element(self, x: int, y: int) -> Button|None:
         index = x + y * self.nb_elements_width
-        if index < 0 or index > len(self._elements): return False
+        if index < 0 or index > len(self._elements): return
         previous_width = sum(self.max_elements_widths[:x])
         previous_height = sum(self.max_elements_heights[:y])
-        new_element = TextButton(
+        new_element = Button(
             self._ui_manager,
-            text,
             on_click_function=self.set_selected_child,
-            x=previous_width, 
+            x=previous_width,
             y=previous_height,
+            width=self.elements_width,
+            height=self.elements_height,
             classes_names=self.cells_classes_names.copy(),
             childs_classes_names=self.cells_childs_classes_names,
             parent=self
         )
         self._elements[index] = new_element
-        new_element.can_have_focus = True
-        self.max_elements_widths[x] = max(self.max_elements_widths[x], new_element._size[0])
-        self.max_elements_heights[y] = max(self.max_elements_heights[y], new_element._size[1])
-        new_element._relative_width = False
-        new_element._relative_height = False
-        if self._relative_width:
-            self._size = (previous_width + self.max_elements_widths[y], self._size[1])
-        if self._relative_height:
-            self._size = (self._size[0], previous_height + self.max_elements_heights[y])
+        new_element._can_have_focus = True
         self._ui_manager.ask_refresh()
         self.update_element()
-        return True
+        return new_element
     
     def remove_element(self, x: int, y: int) -> bool:
         index = x + y * self.nb_elements_width
@@ -102,6 +95,11 @@ class Table(UIElement):
         self.update_element()
         self._ui_manager.ask_refresh()
         return True
+
+    def get_element(self, x: int, y: int) -> Button:
+        index = x + y * self.nb_elements_width
+        if index < 0 or index > len(self._elements): return False
+        return self._elements[index]
 
     def set_selected_child(self, element: UIElement) -> None:
         if self.child_selected is not None:
@@ -131,6 +129,14 @@ class Table(UIElement):
         return width, height
 
     def update_element(self) -> None:
+        self.max_elements_widths = [self.elements_width if self.elements_width is not None else 0 for _ in self.max_elements_widths]
+        self.max_elements_heights = [self.elements_height if self.elements_height is not None else 0 for _ in self.max_elements_heights]
+        for index, element in enumerate(self._elements):
+            if element is None: continue
+            x = index % self.nb_elements_width
+            y = index // self.nb_elements_width
+            self.max_elements_widths[x] = max(self.max_elements_widths[x], element._size[0])
+            self.max_elements_heights[y] = max(self.max_elements_heights[y], element._size[1])
         super().update_element()
         for index, element in enumerate(self._elements):
             if element is None: continue

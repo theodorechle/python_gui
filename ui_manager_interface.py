@@ -24,6 +24,10 @@ class UIManagerInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def update_element_theme(self, element: UIElementInterface, erase: bool=False) -> None:
+        pass
+
+    @abstractmethod
     def get_window_size(self) -> tuple[int, int]:
         pass
     

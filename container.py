@@ -40,12 +40,17 @@ class Container(UIElement):
         """
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
     
-    def add_element(self, element: UIElement) -> None:
+    def add_element(self, element: UIElement) -> UIElement:
         self._elements.append(element)
         element.classes_names.extend(self.childs_classes_names)
+        self._ui_manager.update_element_theme(element)
         self._ui_manager.ask_refresh()
         element.parent = self
-        self.update_element()
+        if self.parent is not None:
+            self.parent.update_element()
+        else:
+            self.update_element()
+        return element
     
     def remove_element(self, element: UIElement) -> None:
         try:

@@ -19,9 +19,9 @@ class TextButton(Button):
         theme_elements_name.append('text-button')
         super().__init__(ui_manager, on_click_function, x, y, width, height, anchor, visible, parent, theme_elements_name, classes_names, childs_classes_names, background_image)
         self.label = Label(self._ui_manager, text, parent=self)
-        self.add_element(self.label)
         self.label.fill_parent_width = True
         self.label.fill_parent_height = True
+        self.add_element(self.label)
         self.update_element()
     
     def get_text(self) -> str:

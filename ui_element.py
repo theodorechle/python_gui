@@ -39,6 +39,7 @@ class UIElement(UIElementInterface):
         self.theme_elements_name: list[str] = ['ui-element'] # a list of the class name and all is subclasses to get the themes
         if theme_elements_name is not None:
             self.theme_elements_name.extend(theme_elements_name)
+        self.parent = parent
         self._theme: dict[str, dict[str, Any]] = {}
         self._border_width: int = 0
         self._ui_manager: UIManagerInterface = ui_manager
@@ -54,7 +55,6 @@ class UIElement(UIElementInterface):
         self._relative_height = height is None
         self.fit_in_parent_rect: pygame.Rect = pygame.Rect(0, 0, 0, 0)
         self.anchor = anchor
-        self.parent = parent
         self._visible = visible
         self._hovered = False
         self._clicked = False
@@ -67,8 +67,11 @@ class UIElement(UIElementInterface):
         self.fill_parent_height = False # allow element to expand or shrink to fill in its parent
         self.classes_names = ['default'] if classes_names is None else [class_name for class_name in classes_names if ':' not in class_name] # ':' is reserved for special uses
         self._ui_manager.add_element(self)
-        self.update_element()
         self.background_image: pygame.Surface|None = None
+        self.set_background_image(background_image)
+        self.update_element()
+
+    def set_background_image(self, background_image: str|pygame.Surface|None=None) -> None:
         if isinstance(background_image, str):
             try:
                 self.background_image = pygame.image.load(background_image)
@@ -77,7 +80,6 @@ class UIElement(UIElementInterface):
         elif isinstance(background_image, pygame.Surface):
             self.background_image = background_image
         self.scaled_background_image: pygame.Surface|None = None
-        self._resize_background_image()
 
     def _resize_background_image(self) -> None:
         if self.background_image is not None:
@@ -87,6 +89,7 @@ class UIElement(UIElementInterface):
         self.update_size()
         self.update_start_coords()
         self.set_fit_in_parent_rect()
+        self._resize_background_image()
 
     def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool=False) -> None:
         """If erase is False, only the changed and added values will be set"""
@@ -166,12 +169,20 @@ class UIElement(UIElementInterface):
     def get_relative_width(self, width: str) -> int:
         if width[-1] == '%':
             width = width[:-1]
-        return self._ui_manager.get_window_size()[0] * int(width) // 100
+        if self.parent is not None:
+            parent_size = self.parent.get_size()[0]
+        else:
+            parent_size = self._ui_manager.get_window_size()[0]
+        return parent_size * int(width) // 100
 
     def get_relative_height(self, height: str) -> int:
         if height[-1] == '%':
             height = height[:-1]
-        return self._ui_manager.get_window_size()[1] * int(height) // 100
+        if self.parent is not None:
+            parent_size = self.parent.get_size()[1]
+        else:
+            parent_size = self._ui_manager.get_window_size()[1]
+        return parent_size * int(height) // 100
 
     def update_size(self) -> None:
         width, height = self._first_size

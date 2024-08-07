@@ -70,6 +70,9 @@ class UIManager(UIManagerInterface):
                 element.update_element()
             self.ask_refresh()
 
+    def update_element_theme(self, element: UIElementInterface, erase: bool=False) -> None:
+        element.update_theme(self._theme, erase)
+
     def get_window_size(self) -> tuple[int, int]:
         return self.window.get_size()
 
@@ -124,12 +127,16 @@ class UIManager(UIManagerInterface):
                 if e in self._elements_to_display: continue
                 self._elements_to_display.append(e)
 
-    def display(self) -> None:
+    def display(self, clear: bool=True) -> None:
+        """
+        If clear is set to True, will fill the window with the background color or imag
+        """
         if self._refresh_all:
-            if self.background_image is not None:
-                self.window.blit(self.scaled_background_image, (0, 0))
-            else:
-                self.window.fill(self._theme['window']['background-color'])
+            if clear:
+                if self.background_image is not None:
+                    self.window.blit(self.scaled_background_image, (0, 0))
+                else:
+                    self.window.fill(self._theme['window']['background-color'])
             elements = self._elements
         else:
             elements = self._elements_to_display
@@ -137,6 +144,9 @@ class UIManager(UIManagerInterface):
             element.display_element()
         self._refresh_all = False
         self._elements_to_display.clear()
+        for element in self._unclicked_elements:
+            element.set_unclicked(False)
+        self._unclicked_elements.clear()
     
     def get_hovered_element(self) -> list[UIElementInterface]:
         x, y = pygame.mouse.get_pos()
@@ -211,9 +221,4 @@ class UIManager(UIManagerInterface):
             self._hovered_elements.add(element)
         for element in self._elements:
             element.update()
-        need_screen_update = self._refresh_all or len(self._elements_to_display) != 0
-        self.display()
-        for element in self._unclicked_elements:
-            element.set_unclicked(False)
-        self._unclicked_elements.clear()
-        return need_screen_update
+        return self._refresh_all or len(self._elements_to_display) != 0
