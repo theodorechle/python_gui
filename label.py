@@ -118,10 +118,13 @@ class Label(UIElement):
                 text = text[:-1]
                 text_size = self._font.size(text)
 
-        self._ui_manager.get_window().blit(self._font
-                    .render(text,
+        text_rendered = self._font.render(text,
                             self.get_theme_value('antialias'),
-                            text_color),
+                            text_color)
+        transparency = self.get_theme_value('text-transparency')
+        if transparency is not None:
+            text_rendered.set_alpha(transparency)
+        self._ui_manager.get_window().blit(text_rendered,
                     (start_x, start_y)
         )
 

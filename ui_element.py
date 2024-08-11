@@ -84,7 +84,7 @@ class UIElement(UIElementInterface):
     def _resize_background_image(self) -> None:
         if self.background_image is not None:
             self.scaled_background_image = pygame.transform.scale(self.background_image, self.get_size())
-
+        
     def update_element(self) -> None:
         self.update_size()
         self.update_start_coords()
@@ -95,12 +95,6 @@ class UIElement(UIElementInterface):
         """If erase is False, only the changed and added values will be set"""
         if erase:
             self._theme.clear()
-        for element_name in self.theme_elements_name:
-            if element_name in theme_dict:
-                self._theme.update(theme_dict[element_name])
-        for name in self.classes_names:
-            if f':{name}' in theme_dict:
-                self._theme.update(theme_dict[f':{name}'])
         parent = self.parent
         while parent is not None:
             for parent_class_name in parent.classes_names:
@@ -110,6 +104,12 @@ class UIElement(UIElementInterface):
                 if f'{parent_theme_name}:child' in theme_dict:
                     self._theme.update(theme_dict[f'{parent_theme_name}:child'])
             parent = parent.parent
+        for element_name in self.theme_elements_name:
+            if element_name in theme_dict:
+                self._theme.update(theme_dict[element_name])
+        for name in self.classes_names:
+            if f':{name}' in theme_dict:
+                self._theme.update(theme_dict[f':{name}'])
         self._border_width = max(0, self.get_theme_value('border-width'))
 
     def get_start_coords(self) -> tuple[int, int]:
@@ -313,7 +313,9 @@ class UIElement(UIElementInterface):
         if self.scaled_background_image is not None:
             self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
         else:
-            self._ui_manager.get_window().fill(self.get_theme_value('background-color'), (start_x, start_y, length, height))
+            background_color = self.get_theme_value('background-color')
+            if background_color is not None:
+                self._ui_manager.get_window().fill(background_color, (start_x, start_y, length, height))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,

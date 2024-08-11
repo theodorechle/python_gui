@@ -43,9 +43,9 @@ class Container(UIElement):
     def add_element(self, element: UIElement) -> UIElement:
         self._elements.append(element)
         element.classes_names.extend(self.childs_classes_names)
-        self._ui_manager.update_element_theme(element)
-        self._ui_manager.ask_refresh()
         element.parent = self
+        self._ui_manager.update_element_theme(element, True)
+        self._ui_manager.ask_refresh()
         if self.parent is not None:
             self.parent.update_element()
         else:
