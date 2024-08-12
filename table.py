@@ -69,7 +69,8 @@ class Table(UIElement):
             height=self.elements_height,
             classes_names=self.cells_classes_names.copy(),
             childs_classes_names=self.cells_childs_classes_names,
-            parent=self
+            parent=self,
+            visible=self._visible
         )
         self._elements[index] = new_element
         new_element._can_have_focus = True
@@ -175,3 +176,15 @@ class Table(UIElement):
         for element in self._elements:
             if element is None: continue
             element.display()
+    
+    def set_visibility(self, visible: bool) -> None:
+        super().set_visibility(visible)
+        for element in self._elements:
+            if element is None: continue
+            element.set_visibility(visible)
+
+    def toggle_visibility(self) -> bool:
+        super().toggle_visibility()
+        for element in self._elements:
+            if element is None: continue
+            element.set_visibility(self._visible)

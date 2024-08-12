@@ -44,6 +44,7 @@ class Container(UIElement):
         self._elements.append(element)
         element.classes_names.extend(self.childs_classes_names)
         element.parent = self
+        element.set_visibility(self._visible)
         self._ui_manager.update_element_theme(element, True)
         self._ui_manager.ask_refresh()
         if self.parent is not None:
@@ -96,3 +97,15 @@ class Container(UIElement):
         for child in self._elements:
             child.set_selected(selected)
         super().set_selected(selected)
+
+    def set_visibility(self, visible: bool) -> None:
+        super().set_visibility(visible)
+        for element in self._elements:
+            if element is None: continue
+            element.set_visibility(visible)
+
+    def toggle_visibility(self) -> bool:
+        super().toggle_visibility()
+        for element in self._elements:
+            if element is None: continue
+            element.set_visibility(self._visible)
