@@ -15,7 +15,7 @@
     "label": {
         "font-name": "",
         "font-size": 35,
-        "antialias": 1,
+        "antialias": true,
         "text-color": "#ffffff"
     },
     "input-text-box": {

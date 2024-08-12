@@ -95,18 +95,18 @@ class UIElement(UIElementInterface):
         """If erase is False, only the changed and added values will be set"""
         if erase:
             self._theme.clear()
-        parent = self.parent
-        while parent is not None:
-            for parent_class_name in parent.classes_names:
-                if f':{parent_class_name}:child' in theme_dict:
-                    self._theme.update(theme_dict[f':{parent_class_name}:child'])
-            for parent_theme_name in parent.theme_elements_name:
-                if f'{parent_theme_name}:child' in theme_dict:
-                    self._theme.update(theme_dict[f'{parent_theme_name}:child'])
-            parent = parent.parent
         for element_name in self.theme_elements_name:
             if element_name in theme_dict:
                 self._theme.update(theme_dict[element_name])
+        parent = self.parent
+        while parent is not None:
+            for parent_theme_name in parent.theme_elements_name:
+                if f'{parent_theme_name}:child' in theme_dict:
+                    self._theme.update(theme_dict[f'{parent_theme_name}:child'])
+            for parent_class_name in parent.classes_names:
+                if f':{parent_class_name}:child' in theme_dict:
+                    self._theme.update(theme_dict[f':{parent_class_name}:child'])
+            parent = parent.parent
         for name in self.classes_names:
             if f':{name}' in theme_dict:
                 self._theme.update(theme_dict[f':{name}'])

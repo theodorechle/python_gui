@@ -110,18 +110,12 @@ class Table(UIElement):
         if self.on_select_function is not None:
             self.on_select_function(self.child_selected)
 
-    def get_focused_value(self) -> str|None:
-        if self.child_selected is None:
-            return
-        return self.child_selected.get_text()
+    def get_selected_element(self) -> UIElement|None:
+        return self.child_selected
 
     def get_content_size(self) -> tuple[int, int]:
         width = sum(self.max_elements_widths)
         height = sum(self.max_elements_heights)
-        if height != 0:
-            height -= 2*self._border_width
-        if width != 0:
-            width -= 2*self._border_width
         if not self._relative_width:
             width = min(self._size[0], width)
         if not self._relative_height:
