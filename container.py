@@ -61,8 +61,8 @@ class Container(UIElement):
                 except ValueError:
                     pass
             element.parent = None
+            element.delete()
             self._elements.remove(element)
-            self._ui_manager.remove_element(element)
             self.update_element()
             self._ui_manager.ask_refresh()
         except ValueError:
@@ -70,7 +70,7 @@ class Container(UIElement):
     
     def clear_elements_list(self) -> None:
         for element in self._elements:
-            self._ui_manager.remove_element(element)
+            element.delete()
         self._elements.clear()
         self.update_element()
         self._ui_manager.ask_refresh()
@@ -109,3 +109,17 @@ class Container(UIElement):
         for element in self._elements:
             if element is None: continue
             element.set_visibility(self._visible)
+    
+    def __copy__(self) -> "Container":
+        copy = Container(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy._elements = [element.__copy__() for element in self._elements]
+        for element in copy._elements:
+            element.parent = copy
+        copy.update_element()
+        return copy
+
+    def delete(self) -> None:
+        for element in self._elements:
+            element.delete()
+        self._elements.clear()
+        super().delete()

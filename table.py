@@ -92,15 +92,26 @@ class Table(UIElement):
         self._elements[index] = None
         if self.child_selected == element:
             self.child_selected = None
-        self._ui_manager.remove_element(element)
+        element.delete()
         self.update_element()
         self._ui_manager.ask_refresh()
         return True
 
-    def get_element(self, x: int, y: int) -> Button:
-        index = x + y * self.nb_elements_width
-        if index < 0 or index > len(self._elements): return False
+    def get_element_by_index(self, index: int) -> Button|None:
+        if index < 0 or index > len(self._elements): return None
         return self._elements[index]
+    
+    def get_element(self, x: int, y: int) -> Button|None:
+        return self.get_element_by_index(x + y * self.nb_elements_width)
+
+    def get_element_pos(self, element: UIElement) -> tuple[int, int]:
+        """
+        Returns a tuple (x, y) of the pos of the given element if in the table else (-1, -1)
+        """
+        for index, e in enumerate(self._elements):
+            if e == element:
+                return index % self.nb_elements_width, index // self.nb_elements_width
+        return -1, -1
 
     def set_selected_child(self, element: UIElement) -> None:
         if self.child_selected is not None:
@@ -120,7 +131,6 @@ class Table(UIElement):
             width = min(self._size[0], width)
         if not self._relative_height:
             height = min(self._size[1], height)
-        
         return width, height
 
     def update_element(self) -> None:
@@ -182,3 +192,17 @@ class Table(UIElement):
         for element in self._elements:
             if element is None: continue
             element.set_visibility(self._visible)
+
+    def __copy__(self) -> "Table":
+        copy = Table(self._ui_manager, self.nb_elements_width, self.nb_elements_height, self.elements_width, self.nb_elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy._elements = [element.__copy__() for element in self._elements]
+        for element in copy._elements:
+            element.parent = copy
+        copy.update_element()
+        return copy
+    
+    def delete(self) -> None:
+        for element in self._elements:
+            element.delete()
+        self._elements.clear()
+        super().delete()

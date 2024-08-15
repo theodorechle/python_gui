@@ -124,3 +124,6 @@ class Slider(UIElement):
             (self.value_x + self._start_coords[0] + self.cursor_radius, self._start_coords[1] + self.cursor_radius),
             self.cursor_radius
         )
+
+    def __copy__(self) -> "Slider":
+        return Slider(self._ui_manager, self.min_value, self.max_value, self.step, self.round_precision, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)

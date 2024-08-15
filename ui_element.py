@@ -77,7 +77,7 @@ class UIElement(UIElementInterface):
                 self.background_image = pygame.image.load(background_image)
             except FileNotFoundError:
                 pass
-        elif isinstance(background_image, pygame.Surface):
+        elif isinstance(background_image, pygame.Surface|None):
             self.background_image = background_image
         self.scaled_background_image: pygame.Surface|None = None
 
@@ -261,6 +261,7 @@ class UIElement(UIElementInterface):
             self._ui_manager.ask_refresh(self)
 
     def set_clicked(self, clicked: bool) -> None:
+        print(clicked)
         self._clicked = clicked
         if self.get_theme_value('clicked-border-color') is not None:
             self._ui_manager.ask_refresh(self)
@@ -341,3 +342,12 @@ class UIElement(UIElementInterface):
     
     def get_parent(self) -> UIElementInterface|None:
         return self.parent
+
+    def __copy__(self) -> "UIElement":
+        return UIElement(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+
+    def delete(self) -> None:
+        """
+        Delete all is known references
+        """
+        self._ui_manager.remove_element(self)

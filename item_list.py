@@ -101,12 +101,12 @@ class ItemList(UIElement):
             except ValueError:
                 pass
         element.parent = None
-        self._elements.remove(element)
         if self.child_selected == element:
             self.child_selected = None
+        element.delete()
+        self._elements.remove(element)
         for i in range(index, len(self._elements)):
             self._elements[i]._first_coords = self._elements[i]._first_coords[0], self._elements[i]._first_coords[1] - self.elements_height
-        self._ui_manager.remove_element(element)
         self.update_element()
 
 
@@ -121,7 +121,7 @@ class ItemList(UIElement):
                 element.parent = None
                 if self.child_selected == element:
                     self.child_selected = None
-                self._ui_manager.remove_element(element)
+                element.delete()
             except ValueError:
                 pass
         self._elements.clear()
@@ -206,3 +206,17 @@ class ItemList(UIElement):
         for element in self._elements:
             if element is None: continue
             element.set_visibility(self._visible)
+
+    def __copy__(self) -> "ItemList":
+        copy = ItemList(self._ui_manager, self.elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy._elements = [element.__copy__() for element in self._elements]
+        for element in copy._elements:
+            element.parent = copy
+        copy.update_element()
+        return copy
+
+    def delete(self) -> None:
+        for element in self._elements:
+            element.delete()
+        self._elements.clear()
+        super().delete()

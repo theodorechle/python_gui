@@ -165,3 +165,6 @@ class Label(UIElement):
         super().set_hovered(hovered)
         if self.get_theme_value('hovered-text-color') is not None:
             self._ui_manager.ask_refresh(self)
+
+    def __copy__(self) -> "Label":
+        return Label(self._ui_manager, self._text, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)

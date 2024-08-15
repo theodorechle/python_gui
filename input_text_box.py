@@ -217,3 +217,6 @@ class InputTextBox(Label):
         if self.is_placeholder_displayed:
             return ''
         return self._text
+
+    def __copy__(self) -> "InputTextBox":
+        return InputTextBox(self._ui_manager, self._text, self._placeholder_text, self.forbidden_chars, self.allowed_chars, self.loose_focus_on_enter, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)

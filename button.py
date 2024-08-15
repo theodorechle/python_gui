@@ -42,9 +42,19 @@ class Button(Container):
             childs_classes_names=childs_classes_names,
             background_image=background_image
         )
+        self.clickable = True
     
 
     def update(self) -> None:
-        if self._unclicked and self._on_click_function is not None:
+        if self.clickable and self._unclicked and self._on_click_function is not None:
             self._on_click_function(self)
         super().update()
+
+    def __copy__(self) -> "Button":
+        copy = Button(self._ui_manager, self._on_click_function, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy.clickable = self.clickable
+        copy._elements = [element.__copy__() for element in self._elements]
+        for element in copy._elements:
+            element.parent = copy
+        copy.update_element()
+        return copy
