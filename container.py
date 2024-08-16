@@ -1,3 +1,4 @@
+from typing import Any
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 from pygame import Surface
@@ -40,6 +41,11 @@ class Container(UIElement):
         """
         self.childs_classes_names = [] if childs_classes_names is None else childs_classes_names
     
+    def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool = False) -> None:
+        super().update_theme(theme_dict, erase)
+        for element in self._elements:
+            element.update_theme(theme_dict, erase)
+
     def add_element(self, element: UIElement) -> UIElement:
         self._elements.append(element)
         element.classes_names.extend(self.childs_classes_names)

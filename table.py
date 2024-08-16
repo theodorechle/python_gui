@@ -3,6 +3,7 @@ from ui_manager_interface import UIManagerInterface
 from button import Button
 from typing import Callable
 from pygame import Surface
+from typing import Any
 
 class Table(UIElement):
     _SIZE_SCROLL_SHIFT = 10
@@ -54,6 +55,12 @@ class Table(UIElement):
         self.cells_classes_names = [] if cells_classes_names is None else cells_classes_names
         self.cells_childs_classes_names = [] if cells_childs_classes_names is None else cells_childs_classes_names
         self.on_select_function = on_select_item_function
+        
+    def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool = False) -> None:
+        super().update_theme(theme_dict, erase)
+        for element in self._elements:
+            if element is not None:
+                element.update_theme(theme_dict, erase)
     
     def add_element(self, x: int, y: int) -> Button|None:
         index = x + y * self.nb_elements_width

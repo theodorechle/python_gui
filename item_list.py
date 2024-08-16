@@ -3,10 +3,12 @@ from ui_manager_interface import UIManagerInterface
 from text_button import TextButton
 from typing import Callable
 from pygame import Surface
+from typing import Any
 
 class ItemList(UIElement):
     _DEFAULT_ELEMENT_HEIGHT = 50
     _SIZE_SCROLL_SHIFT = 10
+    
     def __init__(
             self,
             ui_manager: UIManagerInterface,
@@ -48,6 +50,11 @@ class ItemList(UIElement):
         self.items_classes_names = [] if items_classes_names is None else items_classes_names
         self.items_childs_classes_names = [] if items_childs_classes_names is None else items_childs_classes_names
         self.on_select_function = on_select_item_function
+        
+    def update_theme(self, theme_dict: dict[str, dict[str, Any]], erase: bool = False) -> None:
+        super().update_theme(theme_dict, erase)
+        for element in self._elements:
+            element.update_theme(theme_dict, erase)
     
     def add_element(self, text: str) -> None:
         self._elements.append(TextButton(

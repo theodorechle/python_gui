@@ -261,7 +261,6 @@ class UIElement(UIElementInterface):
             self._ui_manager.ask_refresh(self)
 
     def set_clicked(self, clicked: bool) -> None:
-        print(clicked)
         self._clicked = clicked
         if self.get_theme_value('clicked-border-color') is not None:
             self._ui_manager.ask_refresh(self)
