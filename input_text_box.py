@@ -180,8 +180,8 @@ class InputTextBox(Label):
         y1 += self._border_width + 1
         pygame.draw.line(self._ui_manager.window, self.get_theme_value('caret-color'), (x1, y1), (x1, y2))
 
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         if self.show_caret:
             self.display_caret()
     

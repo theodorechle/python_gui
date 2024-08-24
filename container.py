@@ -94,10 +94,10 @@ class Container(UIElement):
         for element in self._elements:
             element.update_element()
     
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         for element in self._elements:
-            element.display()
+            element._display()
 
     def set_selected(self, selected: bool) -> None:
         for child in self._elements:

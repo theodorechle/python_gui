@@ -93,7 +93,7 @@ class UIElementInterface(metaclass=ABCMeta):
         """Check whether the element can be displayed before calling the display method"""
 
     @abstractmethod
-    def display(self) -> None:
+    def _display(self) -> None:
         """Should not be called directly but using display_element method"""
     
     @abstractmethod

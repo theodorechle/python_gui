@@ -182,11 +182,11 @@ class Table(UIElement):
             self.scroll_elements()
         super().update()
 
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         for element in self._elements:
             if element is None: continue
-            element.display()
+            element._display()
     
     def set_visibility(self, visible: bool) -> None:
         super().set_visibility(visible)

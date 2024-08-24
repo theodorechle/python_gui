@@ -131,8 +131,8 @@ class Label(UIElement):
     def get_content_size(self) -> tuple[int, int]:
         return self.get_text_size()
 
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         self.display_text()
     
     def set_text(self, text: str) -> None:

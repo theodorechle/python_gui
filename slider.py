@@ -95,8 +95,8 @@ class Slider(UIElement):
         self._value = x
         self._ui_manager.ask_refresh(self)
 
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         self.display_bar()
         self.display_cursor()
     

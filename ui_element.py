@@ -281,9 +281,9 @@ class UIElement(UIElementInterface):
     def display_element(self) -> None:
         """Check whether the element can be displayed before calling the display method"""
         if self._visible:
-            self.display()
+            self._display()
     
-    def display(self) -> None:
+    def _display(self) -> None:
         """Should not be called directly by external programs but using display_element method"""
         self.display_borders()
     

@@ -167,10 +167,10 @@ class ItemList(UIElement):
             element._relative_width = False
             element.update_element()
     
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         for element in self._elements:
-            element.display()
+            element._display()
     
     def scroll_elements(self) -> None:
         y = self.wheel_move[1]
@@ -197,10 +197,10 @@ class ItemList(UIElement):
             self.scroll_elements()
         super().update()
 
-    def display(self) -> None:
-        super().display()
+    def _display(self) -> None:
+        super()._display()
         for element in self._elements:
-            element.display()
+            element._display()
 
     def set_visibility(self, visible: bool) -> None:
         super().set_visibility(visible)
