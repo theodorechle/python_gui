@@ -83,7 +83,8 @@ class UIElement(UIElementInterface):
 
     def _resize_background_image(self) -> None:
         if self.background_image is not None:
-            self.scaled_background_image = pygame.transform.scale(self.background_image, self.get_size())
+            width, height = self.get_size()
+            self.scaled_background_image = pygame.transform.scale(self.background_image, width - 2*self._border_width, height - 2*self._border_width)
         
     def update_element(self) -> None:
         self.update_size()
@@ -124,7 +125,6 @@ class UIElement(UIElementInterface):
             parent_rect = (0, 0, *self._ui_manager.get_window_size())
         else:
             parent_rect = self.parent.get_surface_rect()
-            parent_rect = parent_rect[0] + self.parent._border_width, parent_rect[1] + self.parent._border_width, parent_rect[2] - 2*self.parent._border_width, parent_rect[3] - 2*self.parent._border_width
         if self.anchor == 'top-left':
             x = parent_rect[0]
             y = parent_rect[1]
@@ -314,11 +314,11 @@ class UIElement(UIElementInterface):
             border_color = self.get_theme_value('border-color')
         start_x, start_y, length, height = self.fit_in_parent_rect
         if self.scaled_background_image is not None:
-            self._ui_manager.get_window().blit(self.scaled_background_image, (start_x, start_y, length, height))
+            self._ui_manager.get_window().blit(self.scaled_background_image, (start_x + self._border_width, start_y + self._border_width, length - 2*self._border_width, height - 2*self._border_width))
         else:
             background_color = self.get_theme_value('background-color')
             if background_color is not None:
-                self._ui_manager.get_window().fill(background_color, (start_x, start_y, length, height))
+                self._ui_manager.get_window().fill(background_color, (start_x + self._border_width, start_y + self._border_width, length - 2*self._border_width, height - 2*self._border_width))
         pygame.draw.rect(
             self._ui_manager.get_window(),
             border_color,
