@@ -84,7 +84,7 @@ class UIElement(UIElementInterface):
     def _resize_background_image(self) -> None:
         if self.background_image is not None:
             width, height = self.get_size()
-            self.scaled_background_image = pygame.transform.scale(self.background_image, width - 2*self._border_width, height - 2*self._border_width)
+            self.scaled_background_image = pygame.transform.scale(self.background_image, (width - 2*self._border_width, height - 2*self._border_width))
         
     def update_element(self) -> None:
         self.update_size()
