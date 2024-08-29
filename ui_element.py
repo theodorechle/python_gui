@@ -205,25 +205,27 @@ class UIElement(UIElementInterface):
     def set_fit_in_parent_rect(self) -> pygame.Rect:
         start_x, start_y = self._start_coords
         length, height = self._size
-        if self.parent is not None:
+        if self.parent is None:
+            parent_x, parent_y, parent_length, parent_height = 0, 0, *self._ui_manager.get_window_size()
+        else:
             parent_x, parent_y, parent_length, parent_height = self.parent.fit_in_parent_rect
-            if start_x >= parent_x:
-                length = max(min(length, parent_length - (start_x - parent_x)), 0)
+        if start_x >= parent_x:
+            length = max(min(length, parent_length - (start_x - parent_x)), 0)
+        else:
+            if length >= parent_length:
+                length = max(min(length, parent_length), 0)
             else:
-                if length >= parent_length:
-                    length = max(min(length, parent_length), 0)
-                else:
-                    length = max(length - (parent_x - start_x), 0)
-            if start_y >= parent_y:
-                height = max(min(height, parent_height - (start_y - parent_y)), 0)
+                length = max(length - (parent_x - start_x), 0)
+        if start_y >= parent_y:
+            height = max(min(height, parent_height - (start_y - parent_y)), 0)
+        else:
+            if height >= parent_height:
+                height = max(min(height, parent_height), 0)
             else:
-                if height >= parent_height:
-                    height = max(min(height, parent_height), 0)
-                else:
-                    height = max(height - (parent_y - start_y), 0)
-            
-            start_x = min(max(start_x, parent_x), parent_x + parent_length)
-            start_y = min(max(start_y, parent_y), parent_y + parent_height)
+                height = max(height - (parent_y - start_y), 0)
+        
+        start_x = min(max(start_x, parent_x), parent_x + parent_length)
+        start_y = min(max(start_y, parent_y), parent_y + parent_height)
         self.fit_in_parent_rect = pygame.Rect(start_x, start_y, length, height)
 
     def get_content_size(self) -> tuple[int, int]:

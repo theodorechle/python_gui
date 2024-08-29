@@ -177,7 +177,7 @@ class ItemList(UIElement):
         if y >= 0:
             y = min(y, self.scroll_shift[1])
         if y <= 0:
-            if self._size[1] >= self.elements_height * len(self._elements) - self.scroll_shift[1] * self._SIZE_SCROLL_SHIFT:
+            if self.fit_in_parent_rect[3] >= self.elements_height * len(self._elements) - self.scroll_shift[1] * self._SIZE_SCROLL_SHIFT:
                 y = 0
         x = self.wheel_move[0]
         if x >= 0:
