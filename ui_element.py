@@ -124,6 +124,7 @@ class UIElement(UIElementInterface):
             parent_rect = (0, 0, *self._ui_manager.get_window_size())
         else:
             parent_rect = self.parent.get_surface_rect()
+            parent_rect = parent_rect[0] + self.parent._border_width, parent_rect[1] + self.parent._border_width, parent_rect[2] - 2*self.parent._border_width, parent_rect[3] - 2*self.parent._border_width
         if self.anchor == 'top-left':
             x = parent_rect[0]
             y = parent_rect[1]
