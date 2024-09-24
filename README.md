@@ -19,3 +19,9 @@ Add padding
 Add min and max size
 
 Add possibility to set dimensions in theme files
+
+Add copy-paste
+
+Allow resizing
+
+Allow to delete multiple letters by keeping the key pressed
