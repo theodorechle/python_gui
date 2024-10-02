@@ -44,7 +44,6 @@ class Button(Container):
         )
         self.clickable = True
     
-
     def update(self) -> None:
         if self.clickable and self._unclicked and self._on_click_function is not None:
             self._on_click_function(self)
