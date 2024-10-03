@@ -168,7 +168,11 @@ class UIManager(UIManagerInterface):
         If the event is not MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP or MOUSEWHEEL,
         if an element have the focus, the event will be sent to the focused element
         """
-        if event.type == pygame.MOUSEMOTION:
+        if event.type == pygame.WINDOWSIZECHANGED:
+            for element in self._elements:
+                element.update_element()
+            self.ask_refresh()
+        elif event.type == pygame.MOUSEMOTION:
             pass
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button in (4, 5): return # wheel

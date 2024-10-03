@@ -4,7 +4,6 @@ Features:
 - Add possibility to set dimensions in theme files
 - Add copy-paste
 - Allow resizing
-- Allow to delete multiple letters by keeping the key pressed
 - Add a debug tool to get data on specified elements and set values
 
 <br>
