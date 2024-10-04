@@ -5,6 +5,7 @@ Features:
 - Add copy-paste
 - Allow resizing
 - Add a debug tool to get data on specified elements and set values
+- Allow any event like hovered, clicked, ...
 
 <br>
 

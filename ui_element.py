@@ -71,6 +71,7 @@ class UIElement(UIElementInterface):
         self.set_background_image(background_image)
         self.update_element()
 
+
     def set_background_image(self, background_image: str|pygame.Surface|None=None) -> None:
         if isinstance(background_image, str):
             try:
