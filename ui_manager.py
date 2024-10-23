@@ -162,6 +162,41 @@ class UIManager(UIManagerInterface):
     def get_focus(self) -> UIElementInterface|None:
         return self._focused_element
 
+    def resize_window(self) -> None:
+        for element in self._elements:
+            element.update_element()
+            self.ask_refresh()
+
+    def click(self) -> None:
+        elements = self.get_hovered_element()
+        for element in elements:
+            element.set_clicked(True)
+            self._clicked_elements.add(element)
+
+    def unclick(self) -> None:
+        elements = self.get_hovered_element()
+        is_focused = False
+        for element in self._clicked_elements:
+            element.set_clicked(False)
+            element.set_unclicked(True)
+        self._unclicked_elements = self._unclicked_elements.union(self._clicked_elements)
+        self._clicked_elements.clear()
+        for element in elements:
+            if not is_focused and element.is_focusable():
+                is_focused = True
+                if self.get_focus() != element:
+                    self.set_focus(element)
+                break
+        if not is_focused:
+            self.set_focus(None)
+
+    def scroll(self, x: int, y: int) -> None:
+        if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            x, y = y, x
+        elements = self.get_hovered_element()
+        for element in elements:
+            element.wheel_move = x, y
+
     def process_event(self, event: pygame.event.Event) -> None:
         """
         Try to process the given events.
@@ -169,41 +204,17 @@ class UIManager(UIManagerInterface):
         if an element have the focus, the event will be sent to the focused element
         """
         if event.type == pygame.WINDOWSIZECHANGED:
-            for element in self._elements:
-                element.update_element()
-            self.ask_refresh()
+            self.resize_window()
         elif event.type == pygame.MOUSEMOTION:
             pass
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button in (4, 5): return # wheel
-            elements = self.get_hovered_element()
-            for element in elements:
-                element.set_clicked(True)
-                self._clicked_elements.add(element)
+            self.click()
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button in (4, 5): return # wheel
-            elements = self.get_hovered_element()
-            is_focused = False
-            for element in self._clicked_elements:
-                element.set_clicked(False)
-                element.set_unclicked(True)
-            self._unclicked_elements = self._unclicked_elements.union(self._clicked_elements)
-            self._clicked_elements.clear()
-            for element in elements:
-                if not is_focused and element.is_focusable():
-                    is_focused = True
-                    if self.get_focus() != element:
-                        self.set_focus(element)
-                    break
-            if not is_focused:
-                self.set_focus(None)
+            self.unclick()
         elif event.type == pygame.MOUSEWHEEL:
-            x, y = event.x, event.y
-            if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                x, y = y, x
-            elements = self.get_hovered_element()
-            for element in elements:
-                element.wheel_move = x, y
+            self.scroll(event.x, event.y)
         elif self._focused_element is not None:
             self._focused_element.process_event(event)
 

@@ -7,10 +7,10 @@ class Container(UIElement):
     def __init__(
             self,
             ui_manager: UIManagerInterface,
-            x: int = 0,
-            y: int = 0,
-            width: int | None = None,
-            height: int | None = None,
+            x: int | str = 0,
+            y: int | str = 0,
+            width: int | str | None = None,
+            height: int | str | None = None,
             anchor: str = 'top-left',
             visible: bool = True,
             parent: UIElement | None = None,
@@ -107,17 +107,16 @@ class Container(UIElement):
     def set_visibility(self, visible: bool) -> None:
         super().set_visibility(visible)
         for element in self._elements:
-            if element is None: continue
             element.set_visibility(visible)
 
     def toggle_visibility(self) -> bool:
         super().toggle_visibility()
         for element in self._elements:
-            if element is None: continue
             element.set_visibility(self._visible)
+        return self._visible
     
     def __copy__(self) -> "Container":
-        copy = Container(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy = Container(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
         copy._elements = [element.__copy__() for element in self._elements]
         for element in copy._elements:
             element.parent = copy

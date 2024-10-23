@@ -113,7 +113,7 @@ class Table(UIElement):
 
     def get_element_pos(self, element: UIElement) -> tuple[int, int]:
         """
-        Returns a tuple (x, y) of the pos of the given element if in the table else (-1, -1)
+        Returns a $1|None(x, y) of the pos of the given element if in the table else (-1, -1)
         """
         for index, e in enumerate(self._elements):
             if e == element:

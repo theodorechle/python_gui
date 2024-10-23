@@ -50,7 +50,7 @@ class Button(Container):
         super().update()
 
     def __copy__(self) -> "Button":
-        copy = Button(self._ui_manager, self._on_click_function, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        copy = Button(self._ui_manager, self._on_click_function, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
         copy.clickable = self.clickable
         copy._elements = [element.__copy__() for element in self._elements]
         for element in copy._elements:

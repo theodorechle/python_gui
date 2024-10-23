@@ -18,7 +18,7 @@ class UIElementInterface(metaclass=ABCMeta):
         """If erase is False, only the changed and added values will be set"""
 
     @abstractmethod
-    def get_start_coords(self) -> tuple[int, int]:
+    def get_start_coords(self) -> tuple[int|str, int|str]:
         pass
     
     @abstractmethod

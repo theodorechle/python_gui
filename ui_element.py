@@ -8,16 +8,16 @@ class UIElement(UIElementInterface):
     def __init__(
             self,
             ui_manager: UIManagerInterface,
-            x: int|str=0,
-            y: int|str=0,
-            width: int|str|None=None,
-            height: int|str|None=None,
+            x: int | str=0,
+            y: int | str=0,
+            width: int | str | None=None,
+            height: int | str | None=None,
             anchor: str='top-left',
             visible: bool=True,
             parent: "UIElement|None"=None,
-            theme_elements_name: list[str]|None=None,
-            classes_names: list[str]|None=None,
-            background_image: str|pygame.Surface|None=None) -> None:
+            theme_elements_name: list[str] | None=None,
+            classes_names: list[str] | None=None,
+            background_image: str | pygame.Surface | None=None) -> None:
         """
         Params:
         - ui_manager: the manager where will be send events and who keeps informations like window size
@@ -78,7 +78,7 @@ class UIElement(UIElementInterface):
                 self.background_image = pygame.image.load(background_image)
             except FileNotFoundError:
                 pass
-        elif isinstance(background_image, pygame.Surface|None):
+        else:
             self.background_image = background_image
         self.scaled_background_image: pygame.Surface|None = None
 
@@ -112,7 +112,9 @@ class UIElement(UIElementInterface):
         for name in self.classes_names:
             if f':{name}' in theme_dict:
                 self._theme.update(theme_dict[f':{name}'])
-        self._border_width = max(0, self.get_theme_value('border-width'))
+        border_width = self.get_theme_value('border-width')
+        if border_width is None: return
+        self._border_width = max(0, border_width)
 
     def get_start_coords(self) -> tuple[int, int]:
         return self._start_coords

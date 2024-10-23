@@ -3,9 +3,9 @@ Features:
 - Add min and max size
 - Add possibility to set dimensions in theme files
 - Add copy-paste
-- Allow resizing
 - Add a debug tool to get data on specified elements and set values
 - Allow any event like hovered, clicked, ...
+- Allow changing focused element with tab
 
 <br>
 
