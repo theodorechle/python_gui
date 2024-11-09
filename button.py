@@ -3,6 +3,7 @@ from ui_element import UIElement
 from container import Container
 from pygame import Surface
 from typing import Callable
+from copy import copy
 
 class Button(Container):
     def __init__(
@@ -50,10 +51,10 @@ class Button(Container):
         super().update()
 
     def __copy__(self) -> "Button":
-        copy = Button(self._ui_manager, self._on_click_function, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
-        copy.clickable = self.clickable
-        copy._elements = [element.__copy__() for element in self._elements]
-        for element in copy._elements:
-            element.parent = copy
-        copy.update_element()
-        return copy
+        button_copy = Button(self._ui_manager, self._on_click_function, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
+        button_copy.clickable = self.clickable
+        button_copy._elements = [copy(element) for element in self._elements]
+        for element in button_copy._elements:
+            element.parent = button_copy
+        button_copy.update_element()
+        return button_copy

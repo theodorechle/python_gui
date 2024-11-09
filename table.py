@@ -4,6 +4,7 @@ from button import Button
 from typing import Callable
 from pygame import Surface
 from typing import Any
+from copy import copy
 
 class Table(UIElement):
     _SIZE_SCROLL_SHIFT = 10
@@ -201,12 +202,12 @@ class Table(UIElement):
             element.set_visibility(self._visible)
 
     def __copy__(self) -> "Table":
-        copy = Table(self._ui_manager, self.nb_elements_width, self.nb_elements_height, self.elements_width, self.nb_elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
-        copy._elements = [element.__copy__() for element in self._elements]
-        for element in copy._elements:
-            element.parent = copy
-        copy.update_element()
-        return copy
+        table_copy = Table(self._ui_manager, self.nb_elements_width, self.nb_elements_height, self.elements_width, self.nb_elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        table_copy._elements = [copy(element) for element in self._elements]
+        for element in table_copy._elements:
+            element.parent = table_copy
+        table_copy.update_element()
+        return table_copy
     
     def delete(self) -> None:
         for element in self._elements:

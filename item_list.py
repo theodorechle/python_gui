@@ -4,6 +4,7 @@ from text_button import TextButton
 from typing import Callable
 from pygame import Surface
 from typing import Any
+from copy import copy
 
 class ItemList(UIElement):
     _DEFAULT_ELEMENT_HEIGHT = 50
@@ -215,12 +216,12 @@ class ItemList(UIElement):
             element.set_visibility(self._visible)
 
     def __copy__(self) -> "ItemList":
-        copy = ItemList(self._ui_manager, self.elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
-        copy._elements = [element.__copy__() for element in self._elements]
-        for element in copy._elements:
-            element.parent = copy
-        copy.update_element()
-        return copy
+        item_list_copy = ItemList(self._ui_manager, self.elements_height, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, self.background_image)
+        item_list_copy._elements = [copy(element) for element in self._elements]
+        for element in item_list_copy._elements:
+            element.parent = item_list_copy
+        item_list_copy.update_element()
+        return item_list_copy
 
     def delete(self) -> None:
         for element in self._elements:

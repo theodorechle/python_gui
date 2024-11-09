@@ -2,6 +2,7 @@ from typing import Any
 from ui_element import UIElement
 from ui_manager_interface import UIManagerInterface
 from pygame import Surface
+from copy import copy
 
 class Container(UIElement):
     def __init__(
@@ -116,12 +117,12 @@ class Container(UIElement):
         return self._visible
     
     def __copy__(self) -> "Container":
-        copy = Container(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
-        copy._elements = [element.__copy__() for element in self._elements]
-        for element in copy._elements:
-            element.parent = copy
-        copy.update_element()
-        return copy
+        container_copy = Container(self._ui_manager, *self._first_coords, *self._first_size, self.anchor, self._visible, None, self.theme_elements_name, self.classes_names, background_image=self.background_image)
+        container_copy._elements = [copy(element) for element in self._elements]
+        for element in container_copy._elements:
+            element.parent = container_copy
+        container_copy.update_element()
+        return container_copy
 
     def delete(self) -> None:
         for element in self._elements:
